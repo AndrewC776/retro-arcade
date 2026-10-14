@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimal-scale=1, maximum-scale=1, user-scalable=no, minimal-ui" />
+    <title>ReGravy</title>
+    <style>
+        body {
+            background: #080808;
+            margin:0 0 0 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container">
+        <canvas id="cbg" style="position:absolute; z-index:1;"></canvas>
+        <canvas id="cfg" style="position:absolute; z-index:2;"></canvas>
+        <canvas id="cgui" style="position:absolute; z-index:3;"></canvas>
+    </div>
+    <script src="js/controls/keyboard.js"></script>
+    <script src="js/controls/touchpad.js"></script>
+
+    <script src="js/effects/baseeffect.js"></script>
+    <script src="js/effects/explosion.js"></script>
+    <script src="js/effects/star.js"></script>
+
+    <script src="js/objects/asteroid.js"></script>
+    <script src="js/objects/baseobject.js"></script>
+    <script src="js/objects/laserbeam.js"></script>
+    <script src="js/objects/player.js"></script>
+    <script src="js/objects/powerup.js"></script>
+    <script src="js/objects/wall.js"></script>
+
+    <script src="js/app.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/gui.js"></script>
+    <script src="js/sfxr.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/settings.js"></script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+export const cols = 48;
+export const rows = 32;
+export const TILE_W = 64;
+export const TILE_H = 32;
+
+export const moveStepSize = 0.35;
+export const moveStepMs = 60;
+
+
+
+export const MIN_INTERACTION_RADIUS = 1;
+
+
+export let TOOL_REACH_DISTANCE = 3.5;
+
+
+
+export const THROW_MAX_DISTANCE = 8;
+
+export const BOX_COL = 18;
+export const BOX_ROW = 14;
+export const BOX_INTERACTION_RADIUS = 1.25;
+
+export const DOMINION_COL = 38;
+export const DOMINION_ROW = 16;
+export const DOMINION_INTERACTION_RADIUS = 1;
+
+export const WATER_POND_COL = 33;
+export const WATER_POND_ROW = 3;
+
+
+
+
+
+export const POND_MIN_SOAK_MS = 12000;
+
+
+// export const SHOP_BUILDING_COL = 18;
+// export const SHOP_BUILDING_ROW = 16;
+// export const OTHER_BUILDING_COL = 42;
+// export const OTHER_BUILDING_ROW = 3;
+
+// src/constants.js (suggested additions)
+export const FISH_RIPPLE_SPAWN_MS = 9000;   // new ripple every ~4s
+export const FISH_RIPPLE_RAMP_MS = 4500;    // time ripple takes to speed up
+export const FISH_VISIBLE_MS = 533;       // fish "out" for 1.5s
+export const FISH_CATCH_RADIUS = .75;
+export const FISH_SALE_PRICE = 175;
+
+// Relocate the shopkeeper to be inside/at the door of the shop
+export const SHOPKEEPER_COL = 18.5; 
+export const SHOPKEEPER_ROW = 16.5;
+export const WATER_CAN_MAX = 9;
+
+
+
+
+
+export const TASKS = [
+  { id: 'hoe',        desc: 'Click tiles Using Hoe', stat: 0, target: 3 },
+  { id: 'plant',      desc: 'Click Hoed tiles with Seeds to plant',stat: 1, target: 3 },
+  { id: 'fillwater',  desc: 'Click Pond with water to fill',          stat: 10, target: 3 },
+  { id: 'water',      desc: 'Click seeds to Water', stat: 2, target: 3 },
+  { id: 'harvest',    desc: '(Space) to pick up crop',    stat: 3, target: 1 },
+  { id: 'give',       desc: 'Give crop to Emmie (Space)',  stat: 4, target: 1 },
+  { id: 'axe',        desc: 'Axe Tree (Click)', stat: 5, target: 1 },
+  { id: 'gotoshop',   desc: 'Find and Talk to Emmie',    stat: 8, target: 1 },  
+  { id: 'firstMin',   desc: 'Give Crop to Diamond? (Space)', stat: 6, target: 1 },
+  { id: 'mC',         desc: 'Throw Min at Crops to pick, Throw again to collect', stat: 9, target: 5 },
+  { id: 'mMin',   desc: 'Throw Min at Diamond make more min', stat: 6, target: 5 },
+  { id: 'axe',        desc: 'Throw Min at Trees to cut', stat: 5, target: 5 },
+  { id: 'gpa',        desc: 'Visit Gpaps Grave',   stat: 12, target: 1 }, 
+  { id: 'mF',         desc: 'Catch fish with min (Fish sell Instantly)', stat: 7, target: 2 },  
+  { id: 'mC',         desc: 'Collect crops',       stat: 9, target: 30 },  
+  { id: 'wmi',   desc: 'Throw Min in Pond?',    stat: 26, target: 1 },
+  { id: 'mC2',        desc: 'Collect crops',       stat: 9, target: 60 },
+  { id: 'mMin',   desc: 'Get more Min', stat: 6, target: 15 },
+  { id: 'c',          desc: 'Get Farmaxxing Cert', stat: 25, target: 1 },
+  { id: 'mC2',        desc: 'Collect crops',       stat: 9, target: 120 },
+  { id: 'b',        desc: 'Earn 15000g',       stat: 33, target: 15000 },
+  { id: 'b2',        desc: 'Earn 25000g',       stat: 33, target: 25000 },
+  { id: 'co',   desc: 'Buy Farm Back from Unicorp', stat: 13, target: 1 },
+];
+
+export const TOOL_TYPES = {
+  HOE: "hoe",
+  SEEDS: "seeds",
+  WATERING_CAN: "watering-can",
+  AXE: "axe",
+  MIN: "min",
+  HANDS: "empty-hands"
+};
+
+export const TILE_TYPES = {
+  GRASS: "grass",
+  DIRT: "dirt",
+  STONE: "stone",
+  SAND: "sand",
+  WATER: "water"
+};
+
+export const PLANT_STAGES = {
+  EMPTY: "empty",
+  SEED: "seed",
+  SPROUT: "sprout",
+  CROP: "crop"
+};
+
+
+
+
+export const INV_SQRT2 = 1 / Math.sqrt(2);
+
+
+
+export const WALK_POSES = [[-7,8], [-3.5,4], [0,0], [3.5,-4], [7,-8]].map(p => ({armSwing:p[0], legSwing:p[1]}));
+
+
+export const DIRECTION_STYLES = [
+  [0,0,0,0], [2,1,1,0], [0,2,0,1], [-2,1,-1,0], [0,0,0,0], [-2,-1,-1,-1], [0,-2,0,-1], [2,-1,1,-1]
+].map(s => ({bodyOffsetX:s[0], bodyOffsetY:s[1], headOffsetX:s[2], headOffsetY:s[3]}));
+
+
+export const PLACEHOLDER_LOOK = {
+  hair: "#d95730",
+  skin: "#f2c59c",
+  coat: "#5b78d9",
+  pants: "#263140",
+  trim: "#f4d683",
+  boots: "#1e2430",
+  scarf: "#c95f5f"
+};
+
+export const SHOPKEEPER_LOOK = {
+  hair: "#ffb7c5",   // Pink mane
+  skin: "#ffffff",   // White unicorn body
+  coat: "#222222",   // Black suit jacket
+  pants: "#333333",  // Dark grey trousers
+  trim: "#ffffff",   // White shirt collar
+  boots: "#111111",  // Black hooves/shoes
+  scarf: "#cc0000",  // Red power tie
+  horn: "#ffd700"    // Gold horn
+};
+

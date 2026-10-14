@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dollar Tycoon: Happy Casino</title>
+    <style>
+        /* --- ОСНОВНОЙ ДИЗАЙН --- */
+        :root {
+            --bg-color: #1b1b1b;
+            --panel-color: #252525;
+            --accent: #fbc531;
+            --green: #4cd137;
+            --red: #e84118;
+            --blue: #00a8ff;
+            --text: #f5f6fa;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            overflow-x: hidden;
+            overflow-y: auto;
+            min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        @media (max-width: 480px) {
+            .balance-display {
+                font-size: 2em;
+            }
+
+            .main-layout {
+                padding: 10px;
+                gap: 15px;
+            }
+
+            .shop-section {
+                width: 100%;
+                min-width: 100%;
+            }
+        }
+
+        /* Кнопки управления (Язык и Авторы) */
+        .top-controls {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .control-btn {
+            background: transparent;
+            border: 1px solid #7f8fa6;
+            color: #7f8fa6;
+            padding: 8px 15px;
+            cursor: pointer;
+            border-radius: 20px;
+            transition: 0.3s;
+            font-weight: bold;
+            font-size: 14px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .control-btn:hover {
+            background: #353b48;
+            color: white;
+            border-color: white;
+        }
+
+        .main-layout {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-top: 70px;
+            /* Отступ под кнопки */
+        }
+
+        /* ЛЕВАЯ ПАНЕЛЬ */
+        .clicker-section {
+            flex: 1;
+            min-width: 320px;
+            background: var(--panel-color);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: fit-content;
+            position: relative;
+        }
+
+        .balance-display {
+            font-size: 3em;
+            color: var(--green);
+            text-shadow: 0 0 15px rgba(76, 209, 55, 0.4);
+            margin: 5px 0;
+            font-family: monospace;
+            word-break: break-all;
+        }
+
+        /* ЗОНА КЛИКА */
+        .click-area {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            height: 350px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        #click-btn {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 8px solid var(--green);
+            background: radial-gradient(circle, #44bd32 0%, #006266 100%);
+            color: white;
+            font-size: 32px;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(76, 209, 55, 0.2);
+            transition: transform 0.05s, filter 0.3s;
+            outline: none;
+            z-index: 10;
+            position: relative;
+            touch-action: manipulation;
+            /* Улучшает реакцию на тач */
+        }
+
+        #click-btn:active {
+            transform: scale(0.95);
+        }
+
+        #click-btn.broken {
+            filter: grayscale(100%);
+            border-color: #7f8fa6;
+            background: #2f3640;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: scale(0.9);
+        }
+
+        /* Кнопка "Починить" */
+        #repair-btn {
+            display: none;
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--blue);
+            color: white;
+            border: 3px solid white;
+            font-weight: bold;
+            font-size: 11px;
+            cursor: pointer;
+            z-index: 20;
+            box-shadow: 0 0 20px var(--blue);
+            animation: pulse 1s infinite;
+            left: 50%;
+            top: 50%;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* Прогресс перегрева */
+        .heat-bar-container {
+            width: 200px;
+            height: 10px;
+            background: #353b48;
+            border-radius: 5px;
+            margin-top: -20px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            border: 1px solid #7f8fa6;
+            position: relative;
+            z-index: 5;
+        }
+
+        #heat-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #fbc531, #e84118);
+            transition: width 0.2s;
+        }
+
+        /* ПРАВАЯ ПАНЕЛЬ */
+        .shop-section {
+            flex: 1.5;
+            min-width: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding-bottom: 100px;
+        }
+
+        .panel {
+            background: var(--panel-color);
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        h2 {
+            border-bottom: 2px solid #353b48;
+            padding-bottom: 10px;
+            margin-top: 0;
+            color: var(--accent);
+            font-size: 1.2rem;
+        }
+
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+        }
+
+        .item-card {
+            background: #2f3640;
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border: 1px solid transparent;
+            font-size: 0.9em;
+        }
+
+        .item-card.purchased {
+            opacity: 0.6;
+            border: 1px solid var(--green);
+        }
+
+        .btn-buy {
+            background: #0097e6;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 5px;
+            width: 100%;
+        }
+
+        .btn-buy:disabled {
+            background: #718093;
+            cursor: not-allowed;
+        }
+
+        /* --- КЕЙСЫ (КНОПКИ) --- */
+        .chest-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            /* 3 в ряд для телефонов удобнее */
+            gap: 8px;
+        }
+
+        .chest-btn {
+            padding: 12px 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: none;
+            font-weight: bold;
+            font-size: 0.8em;
+            color: #2f3640;
+            transition: 0.2s;
+            text-align: center;
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chest-btn:active {
+            transform: translateY(2px);
+            box-shadow: none;
+        }
+
+        /* Стили кейсов (цвета) - Оставлены без изменений */
+        .c-silver {
+            background: linear-gradient(#dcdde1, #7f8fa6);
+        }
+
+        .c-gold {
+            background: linear-gradient(#fbc531, #e1b12c);
+            color: white;
+        }
+
+        .c-diamond {
+            background: linear-gradient(#00d2d3, #2e86de);
+            color: white;
+        }
+
+        .c-ruby {
+            background: linear-gradient(#ff6b6b, #ee5253);
+            color: white;
+            border: 1px solid #ff9f43;
+        }
+
+        .c-sapphire {
+            background: linear-gradient(#5f27cd, #341f97);
+            color: white;
+            border: 1px solid #a29bfe;
+        }
+
+        .c-emerald {
+            background: linear-gradient(#10ac84, #1dd1a1);
+            color: white;
+            border: 1px solid #55efc4;
+        }
+
+        .c-void {
+            background: linear-gradient(#2d3436, #000000);
+            color: #a29bfe;
+            border: 1px solid #6c5ce7;
+            box-shadow: 0 0 10px #6c5ce7;
+        }
+
+        .c-obsidian {
+            background: linear-gradient(135deg, #2d3436, #1e1e2f);
+            color: #e056fd;
+            border: 1px solid #8e44ad;
+            box-shadow: 0 0 12px #8e44ad;
+        }
+
+        .c-dragon {
+            background: linear-gradient(135deg, #ff3838, #c0392b);
+            color: white;
+            border: 1px solid #f1c40f;
+            box-shadow: 0 0 14px #f39c12;
+        }
+
+        .c-nebula {
+            background: linear-gradient(135deg, #6a0dad, #a855f7, #00d2d3);
+            color: white;
+            border: 1px solid #a29bfe;
+            box-shadow: 0 0 16px #a29bfe;
+        }
+
+        .c-titan {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d, #bdc3c7);
+            color: white;
+            border: 2px solid #f1c40f;
+            box-shadow: 0 0 14px #f1c40f;
+        }
+
+        .c-infinity {
+            background: linear-gradient(45deg, #f1c40f, #ffffff, #e74c3c, #9b59b6, #f1c40f);
+            background-size: 500%;
+            color: #2c3e50;
+            font-weight: 900;
+            border: 2px solid gold;
+            box-shadow: 0 0 18px #f1c40f;
+            animation: shine 8s infinite;
+        }
+
+        @keyframes shine {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            100% {
+                background-position: 100% 50%;
+            }
+        }
+
+        /* --- МОДАЛЬНЫЕ ОКНА --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .authors-box {
+            background: #2f3640;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid var(--accent);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        /* --- РУЛЕТКА --- */
+        .roulette-box {
+            width: 100%;
+            max-width: 500px;
+            background: #2f3640;
+            border-radius: 10px;
+            padding: 15px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+            border: 1px solid #7f8fa6;
+        }
+
+        .roulette-window {
+            width: 100%;
+            height: 80px;
+            background: #1e2329;
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 15px;
+            box-shadow: inset 0 0 20px black;
+        }
+
+        .roulette-center-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--accent);
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+
+        .roulette-tape {
+            display: flex;
+            height: 100%;
+            align-items: center;
+            transform: translateX(0px);
+        }
+
+        .roulette-item {
+            min-width: 70px;
+            height: 70px;
+            margin: 0 4px;
+            background: #353b48;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: white;
+            font-size: 0.75em;
+            border-bottom: 4px solid #718093;
+            flex-direction: column;
+        }
+
+        .r-win {
+            border-bottom-color: var(--green);
+            color: var(--green);
+            background: #1a2e1a;
+        }
+
+        .r-lose {
+            border-bottom-color: var(--red);
+            color: var(--red);
+            background: #2e1a1a;
+        }
+
+        .r-jackpot {
+            border-bottom-color: #fbc531;
+            color: #fbc531;
+            background: #3e3215;
+        }
+
+        /* Анимация текста */
+        .float-text {
+            position: absolute;
+            font-weight: bold;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+            color: var(--green);
+            z-index: 50;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-80px);
+            }
+        }
+
+        /* --- АДАПТАЦИЯ ДЛЯ ТЕЛЕФОНОВ (MOBILE OPTIMIZATION) --- */
+        @media (max-width: 768px) {
+            .main-layout {
+                flex-direction: column;
+                padding: 10px;
+                padding-top: 60px;
+            }
+
+            .clicker-section,
+            .shop-section {
+                min-width: auto;
+                width: 100%;
+                box-sizing: border-box;
+                /* Важно для отступов */
+            }
+
+            .click-area {
+                height: 250px;
+                /* Меньше высота на телефоне */
+            }
+
+            #click-btn {
+                width: 160px;
+                height: 160px;
+                font-size: 24px;
+            }
+
+            .balance-display {
+                font-size: 2.5em;
+            }
+
+            .chest-grid {
+                grid-template-columns: repeat(3, 1fr);
+                /* 3 в ряд */
+            }
+
+            .shop-grid {
+                grid-template-columns: 1fr 1fr;
+                /* 2 в ряд */
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="top-controls">
+        <button class="control-btn" id="lang-btn" onclick="toggleLanguage()">Language: EN</button>
+        <button class="control-btn" id="authors-ui-btn" onclick="openAuthors()">Authors</button>
+    </div>
+
+    <div class="main-layout">
+        <!-- ЛЕВАЯ КОЛОНКА -->
+        <div class="clicker-section">
+            <div style="font-size: 16px; opacity: 0.7; text-transform: uppercase;" id="lbl-balance">YOUR BALANCE</div>
+            <div class="balance-display">$<span id="money">0</span></div>
+
+            <div style="display:flex; gap:15px; color:#7f8fa6; font-size: 0.9em;">
+                <div>⚡ <span id="dpc">1</span> <span id="lbl-dpc">$/click</span></div>
+                <div>⚙️ <span id="dps">0</span> <span id="lbl-dps">$/sec</span></div>
+            </div>
+
+            <div class="click-area">
+                <button id="click-btn">CLICK</button>
+                <button id="repair-btn" onclick="fixButton(event)">COOL<br>DOWN<br>❄️</button>
+            </div>
+
+            <div class="heat-bar-container">
+                <div id="heat-bar"></div>
+            </div>
+            <div style="font-size: 0.8em; color: #7f8fa6;" id="lbl-heat">Equipment Overheat</div>
+
+            <div style="margin-top: 10px; color: #aaa; font-size: 0.9em;">
+                <span id="lbl-cur-pickaxe">Current Item:</span> <span id="current-pickaxe"
+                    style="color:white; font-weight:bold;">Hands</span>
+            </div>
+        </div>
+
+        <!-- ПРАВАЯ КОЛОНКА -->
+        <div class="shop-section">
+
+            <!-- АВТО-МАЙНЕРЫ -->
+            <div class="panel">
+                <h2 id="title-miners">⚙️ Graphic Cards</h2>
+                <div class="shop-grid" id="miners-list"></div>
+            </div>
+
+            <!-- КИРКИ -->
+            <div class="panel">
+                <h2 id="title-upgrades">⛏️ Equipment</h2>
+                <div class="shop-grid" id="pickaxe-list"></div>
+            </div>
+
+            <!-- КАЗИНО -->
+            <div class="panel">
+                <h2 id="title-casino">🎰 Casino (Cases)</h2>
+                <div class="chest-grid">
+                    <button class="chest-btn c-silver" onclick="tryOpenChest(100)">Silver<br>$100</button>
+                    <button class="chest-btn c-gold" onclick="tryOpenChest(1000)">Gold<br>$1k</button>
+                    <button class="chest-btn c-diamond" onclick="tryOpenChest(5000)">Diamond<br>$5k</button>
+                    <button class="chest-btn c-ruby" onclick="tryOpenChest(10000)">Ruby<br>$10k</button>
+                    <button class="chest-btn c-sapphire" onclick="tryOpenChest(100000)">Sapphire<br>$100k</button>
+                    <button class="chest-btn c-emerald" onclick="tryOpenChest(500000)">Emerald<br>$500k</button>
+                    <button class="chest-btn c-void" onclick="tryOpenChest(1000000)">VOID<br>$1M</button>
+                    <button class="chest-btn c-obsidian" onclick="tryOpenChest(5000000)">Obsidian<br>$5M</button>
+                    <button class="chest-btn c-dragon" onclick="tryOpenChest(10000000)">Dragon<br>$10M</button>
+                    <button class="chest-btn c-nebula" onclick="tryOpenChest(100000000)">Nebula<br>$100M</button>
+                    <button class="chest-btn c-titan" onclick="tryOpenChest(500000000)">Titan<br>$500M</button>
+                    <button class="chest-btn c-infinity" onclick="tryOpenChest(1000000000)">INFINITY<br>$1B</button>
+                </div>
+                <div style="margin-top:10px; font-size:0.8em; color:#718093; text-align:center;" id="casino-desc">
+                    💎 <b>RTP ~108%</b>. Generous casino. <br>
+                    Frequent small wins. Loss chance only 30%.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО: АВТОРЫ -->
+    <div id="modal-authors" class="modal-overlay" onclick="closeModal('modal-authors')">
+        <div class="authors-box" onclick="event.stopPropagation()">
+            <h2 style="color:white; border:none;" id="modal-auth-title">Developers</h2>
+            <div class="authors-list">
+                <div>UnderPlayer673</div>
+                <div>ГорчицаСМаслом</div>
+            </div>
+            <button class="btn-buy" style="margin-top:20px; width:100%;" id="btn-close-auth"
+                onclick="closeModal('modal-authors')">Close</button>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО: РУЛЕТКА -->
+    <div id="modal-roulette" class="modal-overlay">
+        <div class="roulette-box">
+            <h2 style="text-align:center; color:white; border:none;" id="roulette-title">Opening Case...</h2>
+
+            <div class="roulette-window">
+                <div class="roulette-center-line"></div>
+                <div class="roulette-tape" id="roulette-tape"></div>
+            </div>
+
+            <div id="roulette-result"
+                style="text-align:center; min-height:30px; font-weight:bold; color:var(--accent);">
+            </div>
+
+            <button id="roulette-close" class="btn-buy" style="width:100%; margin-top:10px; display:none;"
+                onclick="closeModal('modal-roulette')">Claim</button>
+        </div>
+    </div>
+
+    <script>
+        /* --- ЯЗЫКОВАЯ СИСТЕМА (LANG SYSTEM) --- */
+        let currentLang = 'en'; // Default English
+
+        const langData = {
+            en: {
+                balance: "YOUR BALANCE",
+                perClick: "$/click",
+                perSec: "$/sec",
+                clickBtn: "CLICK",
+                overheat: "Equipment Overheat",
+                currentItem: "Current Item:",
+                repair: "COOL<br>DOWN<br>❄️",
+                block: "BLOCK!",
+                tooFast: "TOO FAST!",
+                overheated: "OVERHEAT",
+
+                titleMiners: "⚙️ Graphic Cards",
+                titleUpgrades: "⛏️ Equipment",
+                titleCasino: "🎰 Casino (Cases)",
+
+                casinoDesc: "💎 <b>RTP ~108%</b>. Generous casino. <br>Frequent small wins. Loss chance only 30%.",
+
+                btnAuthors: "Authors",
+                modalAuthTitle: "Developers",
+                btnClose: "Close",
+                btnClaim: "Claim",
+                btnBuy: "Buy",
+                btnBought: "Owned",
+
+                rouletteSpinning: "Opening Case...",
+                rouletteJackpot: "🎉 JACKPOT!!! 🎉",
+                rouletteWin: "🎉 WIN! 🎉",
+                rouletteLose: "Bad Luck...",
+                resWin: "Win:",
+                resProfit: "Profit:",
+                resRolled: "Rolled:",
+                resLoss: "Loss:",
+                noMoney: "Not enough money!",
+
+                items: {
+                    hands: "Hands",
+                    oldPc: "Old PC",
+                    mouse: "Gaming Mouse",
+                    gtx1050: "GTX 1050",
+                    rtx3060: "RTX 3060",
+                    rtx4090: "RTX 4090",
+                    farm: "Mining Farm",
+                    quantum: "Quantum PC",
+                    skynet: "AI Skynet",
+
+                    kid: "Schoolboy",
+                    miner: "Miner",
+                    farmUnit: "Farm Unit",
+                    factory: "Factory",
+                    datacenter: "Data Center"
+                }
+            },
+            ru: {
+                balance: "ВАШ БАЛАНС",
+                perClick: "$/клик",
+                perSec: "$/сек",
+                clickBtn: "КЛИК",
+                overheat: "Нагрев оборудования",
+                currentItem: "Текущий предмет:",
+                repair: "ОСТУДИТЬ<br>❄️",
+                block: "БЛОК!",
+                tooFast: "СЛИШКОМ БЫСТРО!",
+                overheated: "ПЕРЕГРЕВ",
+
+                titleMiners: "⚙️ Видеокарты",
+                titleUpgrades: "⛏️ Оборудование",
+                titleCasino: "🎰 Казино (Кейсы)",
+
+                casinoDesc: "💎 <b>RTP ~108%</b>. Щедрое казино. <br>Частые небольшие выигрыши. Шанс проигрыша всего 30%.",
+
+                btnAuthors: "Авторы",
+                modalAuthTitle: "Разработчики",
+                btnClose: "Закрыть",
+                btnClaim: "Забрать",
+                btnBuy: "Купить",
+                btnBought: "Куплено",
+
+                rouletteSpinning: "Открываем кейс...",
+                rouletteJackpot: "🎉 ДЖЕКПОТ!!! 🎉",
+                rouletteWin: "🎉 ПОБЕДА! 🎉",
+                rouletteLose: "Неудача...",
+                resWin: "Выигрыш:",
+                resProfit: "Прибыль:",
+                resRolled: "Выпало:",
+                resLoss: "Потеря:",
+                noMoney: "Не хватает денег!",
+
+                items: {
+                    hands: "Руки",
+                    oldPc: "Старый ПК",
+                    mouse: "Игровая Мышь",
+                    gtx1050: "GTX 1050",
+                    rtx3060: "RTX 3060",
+                    rtx4090: "RTX 4090",
+                    farm: "Майнинг Ферма",
+                    quantum: "Квантовый ПК",
+                    skynet: "ИИ Скайнет",
+
+                    kid: "Школьник",
+                    miner: "Майнер",
+                    farmUnit: "Ферма",
+                    factory: "Завод",
+                    datacenter: "Дата-центр"
+                }
+            }
+        };
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'ru' : 'en';
+            document.getElementById('lang-btn').innerText = `Language: ${currentLang.toUpperCase()}`;
+            applyLanguage();
+        }
+
+        function applyLanguage() {
+            const t = langData[currentLang];
+
+            // Static Texts
+            document.getElementById('lbl-balance').innerText = t.balance;
+            document.getElementById('lbl-dpc').innerText = t.perClick;
+            document.getElementById('lbl-dps').innerText = t.perSec;
+            document.getElementById('lbl-heat').innerText = t.overheat;
+            document.getElementById('lbl-cur-pickaxe').innerText = t.currentItem;
+            document.getElementById('title-miners').innerText = t.titleMiners;
+            document.getElementById('title-upgrades').innerText = t.titleUpgrades;
+            document.getElementById('title-casino').innerText = t.titleCasino;
+            document.getElementById('casino-desc').innerHTML = t.casinoDesc;
+            document.getElementById('authors-ui-btn').innerText = t.btnAuthors;
+            document.getElementById('modal-auth-title').innerText = t.modalAuthTitle;
+            document.getElementById('btn-close-auth').innerText = t.btnClose;
+            document.getElementById('roulette-close').innerText = t.btnClaim;
+            document.getElementById('repair-btn').innerHTML = t.repair;
+
+            // Only update click button text if it's not broken
+            if (!document.getElementById('click-btn').classList.contains('broken')) {
+                document.getElementById('click-btn').innerText = t.clickBtn;
+            }
+
+            updateUI(); // Refresh lists with new names
+        }
+
+        /* --- ДАННЫЕ ИГРЫ --- */
+        const pickaxesData = [
+            { id: "hands", cost: 0, power: 1 },
+            { id: "oldPc", cost: 100, power: 3 },
+            { id: "mouse", cost: 500, power: 10 },
+            { id: "gtx1050", cost: 2500, power: 30 },
+            { id: "rtx3060", cost: 10000, power: 100 },
+            { id: "rtx4090", cost: 50000, power: 500 },
+            { id: "farm", cost: 250000, power: 2500 },
+            { id: "quantum", cost: 1000000, power: 8000 },
+            { id: "skynet", cost: 5000000, power: 45000 }
+        ];
+
+        const minersData = [
+            { id: "kid", baseCost: 200, prod: 1 },
+            { id: "miner", baseCost: 1500, prod: 5 },
+            { id: "farmUnit", baseCost: 20000, prod: 100 },
+            { id: "factory", baseCost: 500000, prod: 1000 },
+            { id: "datacenter", baseCost: 2000000, prod: 5000 }
+        ];
+
+        /* --- СОСТОЯНИЕ --- */
+        let state = {
+            money: 0,
+            pickaxeId: 0,
+            miners: minersData.map(m => ({ count: 0, cost: m.baseCost }))
+        };
+
+        /* --- ЗВУКИ --- */
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            const now = audioCtx.currentTime;
+
+            if (type === 'click') {
+                osc.frequency.setValueAtTime(600, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.start(now); osc.stop(now + 0.1);
+            } else if (type === 'error') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(100, now);
+                osc.frequency.linearRampToValueAtTime(50, now + 0.2);
+                gainNode.gain.value = 0.2; osc.start(now); osc.stop(now + 0.2);
+            } else if (type === 'win') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.linearRampToValueAtTime(800, now + 0.2);
+                gainNode.gain.value = 0.1; osc.start(now); osc.stop(now + 0.4);
+            } else if (type === 'lose') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.linearRampToValueAtTime(100, now + 0.3);
+                gainNode.gain.value = 0.1; osc.start(now); osc.stop(now + 0.3);
+            }
+        }
+
+        /* --- ЛОГИКА СОХРАНЕНИЯ --- */
+        function saveGame() { localStorage.setItem('dollarStandoff', JSON.stringify(state)); }
+
+        function loadGame() {
+            const saved = localStorage.getItem('dollarStandoff');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    state = { ...state, ...parsed };
+                    if (state.miners.length < minersData.length) {
+                        for (let i = state.miners.length; i < minersData.length; i++) {
+                            state.miners.push({ count: 0, cost: minersData[i].baseCost });
+                        }
+                    }
+                    state.miners.forEach((m, i) => {
+                        if (!m.cost) m.cost = minersData[i].baseCost;
+                    });
+                } catch (e) {
+                    console.error("Save load error", e);
+                }
+            }
+        }
+
+        function formatMoney(num) {
+            if (num >= 1000000000) return (num / 1000000000).toFixed(2) + 'B';
+            if (num >= 1000000) return (num / 1000000).toFixed(2) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
+            return num.toLocaleString();
+        }
+
+        function getClickPower() { return pickaxesData[state.pickaxeId].power; }
+        function getAutoIncome() {
+            return state.miners.reduce((acc, m, i) => acc + m.count * minersData[i].prod, 0);
+        }
+
+        /* --- ЗАЩИТА --- */
+        let clickTimes = [];
+        const CLICK_LIMIT = 25;
+
+        let clickHeat = 0;
+        const HEAT_LIMIT = 200;
+        let isBroken = false;
+
+        document.getElementById('click-btn').addEventListener('pointerdown', handleInput);
+
+        function handleInput(e) {
+            if (isBroken) {
+                playSound('error');
+                return;
+            }
+            e.preventDefault(); // prevents double fire on touch
+
+            const now = Date.now();
+            const x = e.clientX || e.pageX;
+            const y = e.clientY || e.pageY;
+
+            // СКОРОСТЬ
+            clickTimes = clickTimes.filter(time => now - time < 1000);
+            if (clickTimes.length >= CLICK_LIMIT) {
+                triggerBlock(langData[currentLang].tooFast);
+                return;
+            }
+            clickTimes.push(now);
+
+            // ПЕРЕГРЕВ
+            clickHeat++;
+            updateHeatBar();
+
+            if (clickHeat >= HEAT_LIMIT) {
+                breakButton();
+                return;
+            }
+
+            const amount = getClickPower();
+            state.money += amount;
+            playSound('click');
+
+            const el = document.createElement('div');
+            el.className = 'float-text';
+            el.innerText = `+$${amount}`;
+            el.style.left = (x - 20) + 'px';
+            el.style.top = (y - 50) + 'px';
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 1000);
+
+            updateUI();
+        }
+
+        function triggerBlock(msg) {
+            isBroken = true;
+            const btn = document.getElementById('click-btn');
+
+            btn.classList.add('broken');
+            btn.innerText = langData[currentLang].block;
+
+            const el = document.createElement('div');
+            el.className = 'float-text';
+            el.innerText = msg;
+            el.style.color = 'var(--red)';
+            el.style.transform = 'translateY(-150px)';
+            el.style.animation = 'none';
+            el.style.opacity = '1';
+            el.style.left = '50%';
+            el.style.top = '50%';
+            el.style.width = '200px';
+            el.style.marginLeft = '-100px';
+            el.style.textAlign = 'center';
+
+            document.querySelector('.click-area').appendChild(el);
+
+            setTimeout(() => {
+                isBroken = false;
+                btn.classList.remove('broken');
+                btn.innerText = langData[currentLang].clickBtn;
+                el.remove();
+                if (clickHeat >= HEAT_LIMIT) breakButton();
+            }, 1000);
+        }
+
+        function updateHeatBar() {
+            const percent = (clickHeat / HEAT_LIMIT) * 100;
+            document.getElementById('heat-bar').style.width = percent + '%';
+        }
+
+        function breakButton() {
+            isBroken = true;
+            const btn = document.getElementById('click-btn');
+            btn.classList.add('broken');
+            btn.innerText = langData[currentLang].overheated;
+            spawnRepairButton();
+        }
+
+        function spawnRepairButton() {
+            const repairBtn = document.getElementById('repair-btn');
+
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 120 + Math.random() * 30; // Closer for mobile
+
+            const x = Math.cos(angle) * distance;
+            const y = Math.sin(angle) * distance;
+
+            repairBtn.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
+            repairBtn.style.display = 'flex'; // Changed to flex for centering text
+            repairBtn.style.alignItems = 'center';
+            repairBtn.style.justifyContent = 'center';
+        }
+
+        function fixButton(e) {
+            e.stopPropagation();
+
+            isBroken = false;
+            clickHeat = 0;
+            updateHeatBar();
+
+            const btn = document.getElementById('click-btn');
+            btn.classList.remove('broken');
+            btn.innerText = langData[currentLang].clickBtn;
+
+            document.getElementById('repair-btn').style.display = 'none';
+            playSound('win');
+        }
+
+        setInterval(() => {
+            const inc = getAutoIncome();
+            if (inc > 0) { state.money += inc; updateUI(); }
+            saveGame();
+        }, 1000);
+
+        function buyPickaxe(index) {
+            const item = pickaxesData[index];
+            if (state.money >= item.cost) {
+                state.money -= item.cost;
+                state.pickaxeId = index;
+                playSound('win');
+                updateUI();
+            }
+        }
+
+        function buyMiner(index) {
+            const m = state.miners[index];
+            if (state.money >= m.cost) {
+                state.money -= m.cost;
+                m.count++;
+                m.cost = Math.floor(m.cost * 1.15);
+                playSound('win');
+                updateUI();
+            }
+        }
+
+        /* --- КАЗИНО --- */
+        function generatePrize(cost) {
+            const rand = Math.random() * 100;
+            let multiplier = 0;
+
+            if (rand < 30) {
+                multiplier = 0.2 + Math.random() * 0.7;
+            }
+            else if (rand < 92) {
+                multiplier = 1.05 + Math.random() * 0.3;
+            }
+            else if (rand < 99) {
+                multiplier = 2.0 + Math.random() * 1.0;
+            }
+            else {
+                multiplier = 5.0 + Math.random() * 10.0;
+            }
+            return Math.floor(cost * multiplier);
+        }
+
+        function tryOpenChest(cost) {
+            if (state.money >= cost) {
+                state.money -= cost;
+                updateUI();
+                startRoulette(cost);
+            } else {
+                alert(langData[currentLang].noMoney);
+            }
+        }
+
+        function startRoulette(cost) {
+            const t = langData[currentLang];
+            const modal = document.getElementById('modal-roulette');
+            const tape = document.getElementById('roulette-tape');
+            const title = document.getElementById('roulette-title');
+            const resDiv = document.getElementById('roulette-result');
+            const closeBtn = document.getElementById('roulette-close');
+
+            modal.style.display = 'flex';
+            resDiv.innerText = '';
+            closeBtn.style.display = 'none';
+            title.innerText = t.rouletteSpinning;
+            title.style.color = "white";
+            tape.style.transition = 'none';
+            tape.style.transform = 'translateX(0px)';
+            tape.innerHTML = '';
+
+            const winIndex = 70;
+            const finalPrize = generatePrize(cost);
+
+            for (let i = 0; i < 100; i++) {
+                let val;
+                if (i === winIndex) {
+                    val = finalPrize;
+                } else {
+                    val = generatePrize(cost);
+                }
+
+                const div = document.createElement('div');
+                div.className = 'roulette-item';
+                div.innerHTML = `<span>${formatMoney(val)}</span>`;
+
+                if (val > cost * 4) div.classList.add('r-jackpot');
+                else if (val > cost) div.classList.add('r-win');
+                else div.classList.add('r-lose');
+
+                tape.appendChild(div);
+            }
+
+            const itemWidth = 78; // 70px width + 8px margin
+            const containerWidth = document.querySelector('.roulette-window').offsetWidth;
+            const randomOffset = Math.floor(Math.random() * 40) - 20;
+            const targetPos = -((winIndex * itemWidth) - (containerWidth / 2) + (itemWidth / 2)) + randomOffset;
+
+            setTimeout(() => {
+                tape.style.transition = 'transform 5s cubic-bezier(0.15, 1, 0.3, 1)';
+                tape.style.transform = `translateX(${targetPos}px)`;
+            }, 50);
+
+            setTimeout(() => {
+                state.money += finalPrize;
+                updateUI();
+                saveGame();
+
+                if (finalPrize > cost) {
+                    playSound('win');
+                    title.innerText = finalPrize > cost * 4 ? t.rouletteJackpot : t.rouletteWin;
+                    title.style.color = finalPrize > cost * 4 ? "#fbc531" : "var(--green)";
+                    resDiv.innerHTML = `${t.resWin} <span style="color:#4cd137">$${finalPrize.toLocaleString()}</span><br>${t.resProfit} +$${(finalPrize - cost).toLocaleString()}`;
+                } else {
+                    playSound('lose');
+                    title.innerText = t.rouletteLose;
+                    title.style.color = "var(--red)";
+                    resDiv.innerHTML = `${t.resRolled} <span style="color:#e84118">$${finalPrize.toLocaleString()}</span><br>${t.resLoss} -$${(cost - finalPrize).toLocaleString()}`;
+                }
+
+                closeBtn.style.display = 'block';
+            }, 5000);
+        }
+
+        function openAuthors() { document.getElementById('modal-authors').style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function updateUI() {
+            const t = langData[currentLang];
+            document.getElementById('money').innerText = state.money.toLocaleString();
+            document.getElementById('dpc').innerText = formatMoney(getClickPower());
+            document.getElementById('dps').innerText = formatMoney(getAutoIncome());
+
+            const currentPickaxeData = pickaxesData[state.pickaxeId];
+            const currentName = t.items[currentPickaxeData.id];
+            document.getElementById('current-pickaxe').innerText = currentName;
+
+            // RENDER PICKAXES
+            const pList = document.getElementById('pickaxe-list');
+            pList.innerHTML = pickaxesData.map((p, i) => {
+                if (i === 0) return '';
+                const bought = i <= state.pickaxeId;
+                const pName = t.items[p.id];
+                return `
+            <div class="item-card ${bought ? 'purchased' : ''}">
+                <div><b>${pName}</b><br><small>Power: ${formatMoney(p.power)}</small></div>
+                <button class="btn-buy" onclick="buyPickaxe(${i})" ${bought || state.money < p.cost ? 'disabled' : ''}>
+                    ${bought ? t.btnBought : '$' + formatMoney(p.cost)}
+                </button>
+            </div>`;
+            }).join('');
+
+            // RENDER MINERS
+            const mList = document.getElementById('miners-list');
+            mList.innerHTML = minersData.map((m, i) => {
+                const myM = state.miners[i] || { count: 0, cost: m.baseCost };
+                const mName = t.items[m.id];
+                return `
+            <div class="item-card">
+                <div><b>${mName}</b> (x${myM.count})<br><small>+${formatMoney(m.prod)}${t.perSec}</small></div>
+                <button class="btn-buy" onclick="buyMiner(${i})" ${state.money < myM.cost ? 'disabled' : ''}>
+                    $${formatMoney(myM.cost)}
+                </button>
+            </div>`;
+            }).join('');
+        }
+
+        loadGame();
+        applyLanguage(); // Initial Apply
+
+    </script>
+</body>
+
+</html>

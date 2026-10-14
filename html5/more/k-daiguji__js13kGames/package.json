@@ -1,0 +1,25 @@
+{
+  "name": "js13kGames",
+  "version": "0.0.0",
+  "workspaces": [
+    "2026"
+  ],
+  "type": "module",
+  "scripts": {
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "lint": "oxlint --fix",
+    "lint:check": "oxlint",
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "oxc-parser": "^0.144.0",
+    "oxfmt": "^0.63.0",
+    "oxlint": "^1.78.0",
+    "oxlint-tsgolint": "^7.0.2001",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.1",
+    "vitest": "^4.1.10"
+  }
+}

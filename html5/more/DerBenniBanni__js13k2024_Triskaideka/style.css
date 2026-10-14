@@ -1,0 +1,69 @@
+body {
+	margin: 0;
+	padding: 0;
+	font-family: sans-serif;
+    overflow:hidden;
+	background-color: black;
+	cursor:default;
+}
+canvas {
+	width:100vw;
+	height:100vh;
+	display:block;
+	position: absolute;
+	top: 0;
+	left: 0;
+	object-fit: contain;
+	cursor:not-allowed;
+}
+#bg {
+	width:100vw;
+	height:100vh;
+	display:block;
+	position: absolute;
+	top: 0;
+	left: 0;
+	overflow:hidden;
+}
+#bg > div {
+	position:relative;
+	width:100vw;
+	height:1000vh;
+	background-color: #000;
+	top:-900vh;
+}
+
+.bg1 {
+	background: linear-gradient(0deg, #07a 0%, #118 30%, #314 61%, #002 100%);
+}
+.bg2 {
+	background: linear-gradient(180deg, #002 0%, #482a79 40%,#5551df 60%,#462692 100%);
+}
+.bg3 {
+	background: linear-gradient(180deg, #002 0%, #163C52 30%,#4F4F47 50%,#C5752D 80%,#B7490F 95%, #2F1107 100%);
+}
+.hidden {
+	display:none;
+}
+.msg {
+	position:absolute;
+	left:0;
+	right:0;  
+	margin-left: auto;
+	margin-right: auto;
+	top:100px;
+	width:calc(100vw - 200px);
+	min-height: calc(100vh - 200px);
+	background-color: #0254;
+	color:rgb(218, 240, 255);
+	border: 3px solid #adf;
+	border-radius: 20px;;
+	font-family: sans-serif;
+	font-weight:bold;
+	font-size:3vh;
+	padding:10px;
+	text-align: center;
+	cursor:default;
+	text-shadow:3px 3px 3px #000;
+	box-shadow: 0 0 20px 5px #8af, inset 0 0 10px 2px #8af;
+}

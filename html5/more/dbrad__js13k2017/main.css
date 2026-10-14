@@ -1,0 +1,28 @@
+body, html {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #0d0d0d;
+}
+#stage {
+  padding: 0;
+  margin: 0;
+  transform-origin: 0 0;
+  -webkit-transform-origin: 0 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+canvas, img {
+  padding: 0;
+  margin: 0;
+  background-color: #0d0d0d;
+  image-rendering: optimizeSpeed;             /* Older versions of FF          */
+  image-rendering: -moz-crisp-edges;          /* FF 6.0+                       */
+  image-rendering: -webkit-optimize-contrast; /* Safari                        */
+  image-rendering: -o-crisp-edges;            /* OS X & Windows Opera (12.02+) */
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;                 /* Awesome future-browsers       */
+  -ms-interpolation-mode: nearest-neighbor;   /* IE                            */
+}

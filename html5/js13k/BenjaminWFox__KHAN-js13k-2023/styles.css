@@ -1,0 +1,197 @@
+@keyframes pulse {
+    0% {
+        opacity: 100%;
+    }
+    50% {
+        opacity: 75%;
+    }
+    100% {
+        opacity: 100%;
+    }
+}
+
+* {
+    touch-action: manipulation;
+    user-select: none;
+    touch-action: none;
+}
+
+/* Get rid of any margins, set background black, use flexbox to center */
+html, body {
+    margin: 0;
+    background-color: #000;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    font-size: 14px;
+    font-family: luminari, Georgia;
+    image-rendering: pixelated;
+}
+
+.hide {
+    display: none;
+}
+
+button {
+    font-family: luminari, Georgia;
+    border: none;
+    background: none;
+    color: #000;
+    display: inline;
+    font-size: 8rem;
+    align-self: flex-start;
+    margin: 0 auto;
+    padding: 0 50px;
+    opacity: 1;
+}
+
+button:disabled {
+    opacity: .75;
+}
+
+button:hover:not(:disabled) {
+    text-shadow: 0 0 10px #fff;
+}
+
+button:active:not(:disabled) {
+    text-shadow: 0 0 10px #999;
+}
+
+#endturn {
+    position: absolute;
+    font-size: 2rem;
+    right: 25px;
+    top: 60px;
+}
+
+#viewdeck {
+    position: absolute;
+    font-size: 1.25rem;
+    right: 25px;
+    top: 200px;
+}
+
+#menu {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+#difficulty-wrapper {
+    padding: 0 10px;
+    font-size: 2rem;
+    color: #000;
+}
+
+#difficulty {
+    background-color: #c0ae92;
+    font-family: inherit;
+    color: #000;
+    text-align: center;
+    min-width: 300px;
+    font-size: 2rem;
+}
+
+#title {
+    z-index: 2;
+}
+
+#board {
+    width: 1600px;
+    height: 900px;
+    outline: 0;
+    position: relative;
+    display: flex;
+    touch-action: manipulation;
+    user-select: none;
+    background: url('b.png');
+    background-repeat: repeat;
+    background-size: 66%;
+    overflow: hidden;
+}
+
+#menubuttons {
+    position: absolute;
+    left: 10px;
+    top: 20px;
+    z-index: 20000;
+}
+
+#menubuttons button {
+    font-size: 1.5rem;
+    padding: 0 5px;
+    margin: 0 5px;
+}
+
+#menubuttons button.stopped {
+    text-shadow: 0 0 4px red;
+}
+
+button#gotit {
+    position: absolute;
+    left: 50%;
+    top: 75%;
+    transform: translate(-50%, -50%);
+    font-size: 3rem;
+    z-index: 20000;
+}
+
+#overlay {
+    left: 0;
+    right: 0;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    z-index: 10000;
+    box-shadow: inset 0px 0px 100px 50px #000;
+    pointer-events: none;
+}
+
+#game {
+    position: relative;
+    width: 100%;
+}
+#game h2 {
+    width: 100%;
+    text-align: center;
+}
+
+#stage {
+    font-size: 2.5rem;
+}
+
+#round {
+    font-size: 1.5rem;
+}
+
+#alert {
+    margin-top: 20px;
+    font-size: 3rem;
+    animation-name: pulse;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+}
+
+#playing {
+    display: none;
+}
+
+#ground {
+    background-color: #503e32;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60%;
+    background: url('g.png');
+    background-repeat: repeat;
+    background-size: 50%;
+}

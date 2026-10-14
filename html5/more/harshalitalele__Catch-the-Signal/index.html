@@ -1,0 +1,92 @@
+<html>
+    <head>
+        <style>
+            body {
+                background-color: lightskyblue;
+            }
+            #gameboard {
+                background-image: repeating-linear-gradient(-135deg, #c1d11f, #6ec007, #34a203, #3d860b, #00610e);
+                border-top-right-radius: 100%;
+                width: 100%;
+                height: 500px;
+                position: relative;
+                margin-top: 20px;
+            }
+            #player {
+                width: 50px;
+                height: 50px;
+                position: absolute;
+            }
+            .loading-line {
+                position: absolute;
+                height: 15px;
+                z-index: 1;
+                width: 100%;
+                background-color: darkgray;
+                bottom: 0;
+            }
+            .red-line {
+                position: absolute;
+                background-color: red;
+                height: 15px;
+                z-index: 3;
+            }
+            .grey-line {
+                position: absolute;
+                background-color: gray;
+                height: 15px;
+                z-index: 2;
+            }
+            .content-board {
+                margin: 10px;
+                padding: 20px;
+                background-color: rgba(100, 100, 100, 0.4);
+                font-size: 20px;
+                color: white;
+            }
+            .scoreboard {
+                position: fixed;
+                top: 0;
+                right: 0;                
+            }
+            .instructions-board {
+                position: fixed;
+                top: 20%;
+                left: 30%;
+            }
+            .warning {
+                color: darkred;
+            }
+        </style>
+    </head>
+    <body onclick="startGame()">
+        <div id="gameboard" onmousemove="grabSignal(event)">
+            <div id="player"></div>
+            <div class="loading-line">
+                <div class="red-line" id="red-line"></div>
+                <div class="grey-line" id="grey-line"></div>
+            </div>
+        </div>
+        <div class="scoreboard content-board">
+            Score:
+            <span id="scoreboard"></span>
+        </div>
+        <div id="instructions-board" class="instructions-board content-board">
+            <div>
+                Information is the fuel, in this world...
+            </div>
+            <div>
+                Click anywhere to start gathering information online...
+            </div>
+            <br/>
+            <div class="warning">WARNING:</div>
+            <div class="warning">The world hates buffering!</div>
+            <div class="warning">Move cursor to learn about your mobility</div>
+        </div>
+        <div id="libraries">
+            <script src="createCharacter.js"></script>
+            <script src="background.js"></script>
+            <script src="app.js"></script>
+        </div>
+    </body>
+</html>

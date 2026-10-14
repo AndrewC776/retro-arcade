@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    // mine
+    // "useDefineForClassFields": true, // Breaks things
+    //
+    "target": "ES2019",
+    "module": "ESNext",
+    "lib": ["esnext", "DOM"],
+    "moduleResolution": "Node",
+    "strict": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "skipLibCheck": true
+  },
+  "include": ["src", "./.eslintrc.cjs",  "vite.config.js", "jest.config.ts", "playwright-tests", "jest-tests"]
+}

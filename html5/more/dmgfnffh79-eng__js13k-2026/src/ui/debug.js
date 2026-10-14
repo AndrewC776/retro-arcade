@@ -1,0 +1,4 @@
+import { setMusicEnabled,initAudio,musicEnabled } from "../audio/audio.js";
+import { stopAllSounds } from "../main-audio.js";
+import { setWeatherEnabled,setWeatherAnimationEnabled,setSnowEnabled,initWeatherParticles } from "../game/weather.js";
+export function initDebug(){const t=document.getElementById("debugToggle"),p=document.getElementById("debugPanel"),m=document.getElementById("toggleMusic"),w=document.getElementById("toggleWeather"),a=document.getElementById("toggleWeatherAnim"),s=document.getElementById("toggleSnow");t.addEventListener("click",()=>{p.style.display=p.style.display==="none"||p.style.display===""?"block":"none";});m.addEventListener("change",()=>{setMusicEnabled(m.checked);if(!m.checked)stopAllSounds();});w.addEventListener("change",()=>setWeatherEnabled(w.checked));a.addEventListener("change",()=>setWeatherAnimationEnabled(a.checked));s.addEventListener("change",()=>{setSnowEnabled(s.checked);initWeatherParticles();});}

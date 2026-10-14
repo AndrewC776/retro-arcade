@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Rebel Black Cat</title>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐈‍⬛</text></svg>">
+    <link rel="stylesheet" href="src/style.css">
+</head>
+
+<body>
+    <header>
+        <button class="menu-toggle">☰</button>
+        <h1>🐈‍⬛ The Rebel Black Cat...</h1>
+        <div class="header-spacer"></div>
+    </header>
+
+    <main class="game-layout">
+        <aside class="info-panel">
+            <div class="panel-content">
+                <div class="panel-top">
+                    <p class="game-pitch">
+                        <em>You, 🐈‍⬛ the Rebel Black Cat will you be able to escape the Magical Maze
+                            avoiding the Witches who are exploiting your Power of Unluck?</em>
+                    </p>
+                    <p class="game-pitch">
+                        <em>Will your 9 lives be enough to pass by all the floors?</em>
+                    </p>
+
+                </div>
+
+                <hr class="panel-separator">
+
+                <div class="panel-middle">
+                    <div class="desktop-controls">
+                        <h3>View Controls</h3>
+                        <div class="control-row">
+                            <div class="zoom-controls">
+                                <button id="zoom-in" class="zoom-btn">+</button>
+                                <button id="zoom-center" class="zoom-center">🔎</button>
+                                <button id="zoom-out" class="zoom-btn">−</button>
+                            </div>
+                            <div class="pan-grid">
+                                <button id="pan-nw" class="pan-btn">↖️</button>
+                                <button id="pan-n" class="pan-btn">⬆️</button>
+                                <button id="pan-ne" class="pan-btn">↗️</button>
+                                <button id="pan-w" class="pan-btn">⬅️</button>
+                                <button id="pan-center" class="pan-center">🧭</button>
+                                <button id="pan-e" class="pan-btn">➡️</button>
+                                <button id="pan-sw" class="pan-btn">↙️</button>
+                                <button id="pan-s" class="pan-btn">⬇️</button>
+                                <button id="pan-se" class="pan-btn">↘️</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-bottom">
+                    <p class="game-stat">Current Level: 1</p>
+                    <p class="game-stat">Remaining Lives: 9</p>
+                    <p id="action" class="game-stat">Remaining Actions: 5</p>
+                    <p class="game-stat">Remaining Balls: 5</p>
+                    <p class="game-stat">Time Elapsed: 0:00</p>
+                    <p id="position" class="game-stat">Current Position: X:Y</p>
+                </div>
+            </div>
+        </aside>
+
+        <section class="game-area">
+            <canvas id="canvas"></canvas>
+        </section>
+
+        <div class="mobile-controls-panel">
+            <div class="control-row">
+                <div class="zoom-controls">
+                    <button id="mobile-zoom-in" class="zoom-btn">+</button>
+                    <button id="mobile-zoom-center" class="zoom-center">🔎</button>
+                    <button id="mobile-zoom-out" class="zoom-btn">−</button>
+                </div>
+                <div class="pan-grid">
+                    <button id="mobile-pan-nw" class="pan-btn">↖️</button>
+                    <button id="mobile-pan-n" class="pan-btn">⬆️</button>
+                    <button id="mobile-pan-ne" class="pan-btn">↗️</button>
+                    <button id="mobile-pan-w" class="pan-btn">⬅️</button>
+                    <button id="mobile-pan-center" class="pan-center">🧭</button>
+                    <button id="mobile-pan-e" class="pan-btn">➡️</button>
+                    <button id="mobile-pan-sw" class="pan-btn">↙️</button>
+                    <button id="mobile-pan-s" class="pan-btn">⬇️</button>
+                    <button id="mobile-pan-se" class="pan-btn">↘️</button>
+                </div>
+            </div>
+    </main>
+
+    <div id="debug-panel" class="debug-panel">
+        <div id="fps" class="debug-stat">FPS: --</div>
+        <div id="zoom" class="debug-stat">Zoom: --</div>
+    </div>
+
+    <footer>
+        <span id="hello">Hello, js13k!</span><span>An humble contribution, made with 🧡 by <a
+                href='https://www.maeevick.com' target="_blank">maeevick</a></span>
+    </footer>
+
+    <script type="module" src="src/index.ts"></script>
+</body>
+
+</html>

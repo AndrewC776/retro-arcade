@@ -1,0 +1,2 @@
+gamehame.init();
+gamehame.start();

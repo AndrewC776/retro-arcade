@@ -1,0 +1,43 @@
+.tutorial {
+  opacity: 1 !important;
+}
+
+.tutorial #deck:before,
+.tutorial #done:before,
+.tutorial #tutorialtext {
+  font-size: 2rem;
+  position: absolute;
+  z-index: 15000;
+}
+
+/* .tutorial #deck:before {
+  content: 'Draw Pile: Click to show the cards.';
+  top: -20px;
+}
+
+.tutorial #done:before {
+  content: 'Done Pile: Click to show the cards.';
+  top: -20px;
+  right: 50px;
+} */
+
+#tutorialtext {
+  display: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+
+.tutorial #tutorialtext {
+  display: block;
+}
+
+#overviewtext {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  top: 5%;
+}

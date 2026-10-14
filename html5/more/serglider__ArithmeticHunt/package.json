@@ -1,0 +1,27 @@
+{
+  "name": "arithmetic-hunt",
+  "version": "1.0.0",
+  "description": "game - an entry for 2018 js13k contest",
+  "main": "",
+  "scripts": {
+    "start": "gulp"
+  },
+  "author": "Sergey Chernykh",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/serglider/ArithmeticHunt"
+  },
+  "devDependencies": {
+    "del": "^1.2.0",
+    "eslint": "^4.5.0",
+    "gulp": "^3.9.0",
+    "gulp-concat": "^2.6.0",
+    "gulp-connect": "^5.0.0",
+    "gulp-open": "^2.0.0",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-uglify": "^1.2.0",
+    "gulp-uglify-es": "^1.0.4",
+    "gulp-zip": "^3.2.0"
+  }
+}

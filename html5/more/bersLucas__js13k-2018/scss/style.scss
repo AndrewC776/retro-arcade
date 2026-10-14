@@ -1,0 +1,190 @@
+$lGrey: #f1f1f1;
+$grey: #e0e0e0;
+$dGrey: #c2c2c2;
+$lBlue: #c7deff;
+$blue: #7cb3ff;
+$black: #4a4a4a;
+$transition: all 250ms ease-in-out;
+@import 'animations';
+@import 'ribbon';
+@import 'intro';
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+#logo {
+  position: absolute;
+  right: 75px;
+  bottom: 100px;
+  filter: drop-shadow(-10px 10px 10px #000);
+}
+
+#sc {
+  height: 20px;
+  margin: 0 0 20px;
+  position: relative;
+  z-index: 10;
+
+  #bg,
+  #fg {
+    width: 100%;
+    position: absolute;
+    height: 100%;
+  }
+
+  #bg {
+    background: white;
+  }
+
+  #fg {
+    background: $lBlue;
+    z-index: 10;
+    width: 50%;
+  }
+
+  svg#ma {
+    position: absolute;
+    z-index: 20;
+    height: 100%;
+    width: auto;
+    left: 50%;
+    margin-left: -10px;
+  }
+
+  span {
+    position: absolute;
+    z-index: 30;
+    color: white;
+    font-size: 19px;
+    display: block;
+    line-height: 14px;
+    padding: 0 10px;
+  }
+}
+
+body {
+  color: black;
+  overflow-x: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  background: $grey;
+  //game over screen
+  &.go {
+    background: #000;
+    font-family: monospace;
+    color: #fff;
+    padding: 20px;
+    font-size: 1.2em;
+
+    &:after {
+      content: none;
+    }
+  }
+
+  div#gc {
+    background: white;
+    width: 80%;
+    max-width: 1020px;
+    width: 80%;
+    max-width: 1020px;
+    min-height: 110vh;
+    border-radius: 5px;
+    box-shadow: 0 0 5px 1px $dGrey;
+    left: 0;
+    right: 0;
+    margin: auto;
+    position: relative;
+    z-index: 30;
+    padding: 100px;
+
+    .in {
+      color: grey;
+      margin-bottom: 15px;
+
+      p {
+        margin: 0 0 10px;
+      }
+
+      ol,
+      ul {
+        padding-left: 0;
+        list-style-position: inside;
+      }
+    }
+    //text container
+    & > span {
+      display: block;
+      //word
+      & > span {
+        display: inline-block;
+      }
+    }
+
+    span.good {
+      color: green;
+
+      + span.bad {
+        text-decoration: underline;
+      }
+    }
+
+    span.bad {
+      color: red;
+    }
+
+    span.next {
+      opacity: 0.5;
+      //Hide dialog before you reach it
+      & + .next + .next {
+        opacity: 0;
+      }
+    }
+  }
+  //Red flash
+  &:after {
+    content: '';
+    width: 100%;
+    height: 100%;
+    display: block;
+    background: radial-gradient(transparent 50%, rgba(255,0,0,0.3));
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    opacity: 0;
+    transition: $transition;
+  }
+
+  &.bad {
+    //Red flash
+    &:after {
+      opacity: 1;
+    }
+    //shake
+    div#gc {
+      animation: shake 250ms ease-in-out;
+    }
+  }
+}
+
+div#box {
+  width: 25px;
+  height: 25px;
+  display: block;
+  margin: -25px 0 0 -25px;
+  position: absolute;
+  z-index: 101;
+}
+
+#bd {
+  position: absolute;
+  background: black;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+}

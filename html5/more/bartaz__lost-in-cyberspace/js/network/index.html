@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <meta charset="utf-8" />
+  <style>
+    body {
+      font-family: Monaco, "DejaVu Sans Mono", "Lucida Console", "Ubuntu Mono", monospace;
+      white-space: pre;
+      line-height: 0.9;
+      font-size: 2em;
+      background: #222;
+      color: #EEE;
+    }
+
+    .char {
+      display: inline-block;
+      width: 18px;
+    }
+  </style>
+  <body>
+  </body>
+  <script src="./network.js"></script>
+  <script src="./network.test.js"></script>
+  <script>
+    //runTests();
+
+    let n = randomNetwork();
+    console.log("Codes", getNetworkCodes(n));
+    console.log("Network to print:", n);
+    document.body.innerHTML = getNetworkMap(n);
+
+
+  </script>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>独角兽 · 云上彩虹（礼炮口哨胜利版）</title>
+<link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="ui">
+    <div id="score">云朵：0</div>
+    <div id="rainbow">
+        <div class="color" style="color:#ff3b30"></div>
+        <div class="color" style="color:#ff9500"></div>
+        <div class="color" style="color:#ffd60a"></div>
+        <div class="color" style="color:#34c759"></div>
+        <div class="color" style="color:#32ade6"></div>
+        <div class="color" style="color:#5856d6"></div>
+        <div class="color" style="color:#af52de"></div>
+    </div>
+    <div id="hint">点击 / 触摸跳跃 · 再次点击二段跳</div>
+</div>
+
+<button id="debugToggle">Debug</button>
+<div id="debugPanel">
+    <h3>调试面板</h3>
+    <label><input type="checkbox" id="toggleMusic" checked> 音乐</label>
+    <label><input type="checkbox" id="toggleWeather" checked> 天气效果</label>
+    <label><input type="checkbox" id="toggleWeatherAnim" checked> 天气动画</label>
+    <label><input type="checkbox" id="toggleSnow"> 下雪（❄️）</label>
+</div>
+
+<div id="startScreen">
+    <h1>🦄 独角兽 · 云上彩虹</h1>
+    <button id="startButton">点击开始</button>
+</div>
+
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>

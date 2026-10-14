@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <!-- build:css css/style.min.css -->
+    <link rel="stylesheet" href="css/main.css" />
+    <!-- endbuild -->
+  </head>
+
+  <body>
+    <!-- @if DEBUG -->
+    <div style="margin: 10px">
+      <div style="color: white; background: blue; display: inline-block; padding: 2px 5px">
+        DEBUG
+      </div>
+      <!-- @endif -->
+      <!-- @if VISUAL_DEBUG -->
+      <div style="color: white; background: blue; display: inline-block; padding: 2px 5px">
+        VISUAL_DEBUG
+      </div>
+    </div>
+    <!-- @endif -->
+    <div id="board">
+      <canvas width="640" height="480"></canvas>
+      <pre>
+
+        ▄▄▄█████▓ ██░ ██ ▓█████▓██   ██▓     █████▒▒█████   ██▓     ██▓     ▒█████   █     █░
+        ▓  ██▒ ▓▒▓██░ ██▒▓█   ▀ ▒██  ██▒   ▓██   ▒▒██▒  ██▒▓██▒    ▓██▒    ▒██▒  ██▒▓█░ █ ░█░
+        ▒ ▓██░ ▒░▒██▀▀██░▒███    ▒██ ██░   ▒████ ░▒██░  ██▒▒██░    ▒██░    ▒██░  ██▒▒█░ █ ░█ 
+        ░ ▓██▓ ░ ░▓█ ░██ ▒▓█  ▄  ░ ▐██▓░   ░▓█▒  ░▒██   ██░▒██░    ▒██░    ▒██   ██░░█░ █ ░█ 
+          ▒██▒ ░ ░▓█▒░██▓░▒████▒ ░ ██▒▓░   ░▒█░   ░ ████▓▒░░██████▒░██████▒░ ████▓▒░░░██▒██▓ 
+          ▒ ░░    ▒ ░░▒░▒░░ ▒░ ░  ██▒▒▒     ▒ ░   ░ ▒░▒░▒░ ░ ▒░▓  ░░ ▒░▓  ░░ ▒░▒░▒░ ░ ▓░▒ ▒  
+            ░     ▒ ░▒░ ░ ░ ░  ░▓██ ░▒░     ░       ░ ▒ ▒░ ░ ░ ▒  ░░ ░ ▒  ░  ░ ▒ ▒░   ▒ ░ ░  
+          ░       ░  ░░ ░   ░   ▒ ▒ ░░      ░ ░   ░ ░ ░ ▒    ░ ░     ░ ░   ░ ░ ░ ▒    ░   ░  
+                  ░  ░  ░   ░  ░░ ░                   ░ ░      ░  ░    ░  ░    ░ ░      ░    
+                                ░ ░                                                                  
+      </pre>
+    </div>
+    <!-- build:js js/script.min.js -->
+    <script src="js/kontra.js"></script>
+    <script src="js/player-small.js"></script>
+    <script src="js/songs.js"></script>
+    <script src="js/music.js"></script>
+    <script src="js/maps.js"></script>
+    <script src="js/vector.js"></script>
+    <script src="js/layers.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/loader.js"></script>
+    <script src="js/ghost.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/main.js"></script>
+    <!-- endbuild -->
+  </body>
+</html>

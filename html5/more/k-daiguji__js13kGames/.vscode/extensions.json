@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "gruntfuggly.todo-tree",
+    "mechatroner.rainbow-csv",
+    "oderwat.indent-rainbow",
+    "streetsidesoftware.code-spell-checker",
+    "vitest.explorer",
+    "mhutchie.git-graph"
+  ]
+}

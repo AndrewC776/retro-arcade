@@ -1,0 +1,25 @@
+{
+  "name": "js13k_2016",
+  "version": "0.0.1",
+  "description": "game - an entry for 2016 js13k contest",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sergey Chernykh",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/serglider/Glitch_Recovery_15"
+  },
+  "devDependencies": {
+    "del": "^1.2.0",
+    "gulp": "^3.9.0",
+    "gulp-concat": "^2.6.0",
+    "gulp-connect": "^5.0.0",
+    "gulp-open": "^2.0.0",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-uglify": "^1.2.0",
+    "gulp-zip": "^3.2.0"
+  }
+}

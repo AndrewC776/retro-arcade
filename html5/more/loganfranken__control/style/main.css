@@ -1,0 +1,60 @@
+html, body
+{
+  background: #000;
+  margin: 0;
+  padding: 0;
+}
+
+canvas
+{
+  display: block;
+  margin: 0 auto;
+  margin-top: 40px;
+}
+
+canvas:focus
+{
+  outline: none;
+}
+
+.message
+{
+  color: #FFF;
+  font-family: monospace;
+  font-size: 1.25em;
+  margin-top: 100px;
+  opacity: 0.8;
+  position: absolute;
+  text-align: center;
+  text-transform: lowercase;
+  top: 0;
+  width: 100%;
+}
+
+.message .title
+{
+  font-size: 4em;
+  text-transform: uppercase;
+}
+
+.score-wrapper
+{
+  color: #FFF;
+  margin-top: 40px;
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+
+.score
+{
+  font-family: monospace;
+  margin: 0 auto;
+  text-align: right;
+  width: 750px;
+}
+
+#high-score, #narrative
+{
+  color: #FF0;
+}

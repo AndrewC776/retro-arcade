@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Lost in CYBERSPACE</title>
+    <script src="https://aframe.io/releases/0.6.1/aframe.min.js"></script>
+    <script src="./js/network/network.js"></script>
+    <script src="./js/cyberspace/jsfxr.js"></script>
+    <script src="./js/cyberspace/cyberspace.js"></script>
+    <script src="./js/cyberspace/aframe-components.js"></script>
+  </head>
+  <body bgcolor="#000">
+    <p style="position:absolute;margin-left:1em;color:#FFF;font:1em Monaco,Consolas,monospace;">Entering CYBERSPACE...</p>
+    <a-scene cyberspace id="scene">
+      <a-assets>
+      </a-assets>
+      <a-entity id="camera">
+        <a-camera wasd-controls-enabled="false">
+        <a-entity id="cursor" cursor
+          position="0 0 -0.5"
+          geometry="primitive: ring; radiusInner: 0.007; radiusOuter: 0.01, segmentsTheta: 32"
+          material="color: white; shader: flat; opacity: 0.8"
+        />
+        </a-camera>
+      </a-entity>
+
+      <a-plane class='sky' position="0 5 0" rotation="90 0 0" width="600" height="600" color="#001"></a-plane>
+      <a-plane class='sky' position="0 -1 0" rotation="-90 0 0" width="600" height="600" color="#001"></a-plane>
+    </a-scene>
+  </body>
+</html>

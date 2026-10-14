@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TFoB</title>
+    <style>
+      body {
+        margin: 0;
+        position: fixed;
+        width: 100svw;
+        height: 100svh;
+        background: black;
+        text-align: center;
+        touch-action: manipulation;
+      }
+      #app,
+      p {
+        margin: 0;
+        display: inline-block;
+        position: relative;
+        height: 100%;
+        width: auto;
+        image-rendering: pixelated;
+        background: #0f0027;
+        position: relative;
+        user-select: none;
+      }
+    </style>
+  </head>
+  <body>
+    <p id="wrap">
+      <canvas id="app"></canvas>
+    </p>
+    <script src="main.js"></script>
+  </body>
+</html>

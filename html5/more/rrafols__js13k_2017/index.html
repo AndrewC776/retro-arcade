@@ -1,0 +1,142 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>WebGL Demo</title>
+    <meta charset="utf-8">
+  </head>
+
+  <body>
+    <canvas id="glc" width="1024" height="768"></canvas>
+  </body>
+
+  <script src="gl-matrix.js"></script>
+  <script src="shaders.js"></script>
+  <script src="geometry.js"></script>
+  <script src="render.js"></script>
+
+  <script>
+    // global
+    var cubeRotation = 0.0;
+    var scene;
+
+    function loadShader(gl, type, source) {
+      shader = gl.createShader(type);
+      gl.shaderSource(shader, source);
+      gl.compileShader(shader);
+
+      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        alert('An error occurred compiling the shaders: ' + gl.getShaderInfoLog(shader));
+        gl.deleteShader(shader);
+        return null;
+      }
+
+      return shader;
+    }
+
+    function initShaderProgram(gl, vsSource, fsSource) {
+      vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
+      fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
+
+      shaderProgram = gl.createProgram();
+      gl.attachShader(shaderProgram, vertexShader);
+      gl.attachShader(shaderProgram, fragmentShader);
+      gl.linkProgram(shaderProgram);
+
+      if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+        alert('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shaderProgram));
+        return null;
+      }
+      return shaderProgram;
+    }
+  </script>
+
+  <script>
+      const canvas = document.querySelector("#glc");
+      const gl = canvas.getContext("webgl");
+      gl.viewportWidth = canvas.width;
+      gl.viewportHeight = canvas.height;
+
+      shaderProgram = initShaderProgram(gl, vsSource, fsSource);
+
+      programInfo = {
+        program: shaderProgram,
+        attribLocations: {
+          vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
+          vertexNormal: gl.getAttribLocation(shaderProgram, 'aVertexNormal'),
+          vertexColor: gl.getAttribLocation(shaderProgram, 'aVertexColor'),
+        },
+        uniformLocations: {
+          projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
+          modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
+          normalMatrix: gl.getUniformLocation(shaderProgram, 'uNormalMatrix'),
+        },
+      };
+
+      objList = []
+      for(j = 0; j < 4; j++) {
+        objList[j*2] = createRing(gl, 6, 1.0, 1.0, 1.0);
+        objList[j*2 + 1] = createRing(gl, 6, 1.0, 0.0, 0.0);
+        objList[j*2].translation = [ 0.0, j*2-5, -20.0];
+        objList[j*2+1].translation = [ 0.0, j*2+1-5, -20.0];
+      }
+      objList[j*2] = createRing(gl, 6, 1.0, 1.0, 0.0);
+      objList[j*2].translation = [ 0.0, j*2-5, -20.0];
+      objList[j*2].rotation =    [ 0.0, 0.5, 0.0];
+      objList[j*2].rotAngle=0;
+      objList[j*2].logicTick = function(obj, dt) {
+        obj.rotAngle += dt;
+      };
+      objList[j*2].scale = [ 0.9, 1, 0.9];
+
+      objList[j*2+1] = createCone(gl, 6, 1.0, 0.0, 0.0, 1.0);
+      objList[j*2+1].translation = [ 0.0, j*2-5+1, -20.0];
+      objList[j*2+1].scale = [ 1.2, 1, 1.2];
+
+      objList[j*2+2] = createCone(gl, 6, 1.0, 1.0, 0.0, 1.0);
+      objList[j*2+2].translation = [ 4, j*2-5, -20.0];
+      objList[j*2+2].rotation = [0, 0, 1]
+      objList[j*2+2].rotAngle = 3.1415/2
+      objList[j*2+2].scale = [ 1, 10, 1];
+
+      objList[j*2+3] = createCone(gl, 6, 1.0, 1.0, 0.0, 1.0);
+      objList[j*2+3].translation = [-4, j*2-5, -20.0];
+      objList[j*2+3].rotation = [0, 0, -1]
+      objList[j*2+3].rotAngle = 3.1415/2
+      objList[j*2+3].scale = [ 1, 10, 1];
+
+
+      // // objList[0] = createCube(gl);
+      // objList[0] = createRing(gl, 4, 1.0, 0.0, 0.0);
+      // objList[1] = createRing(gl, 4, 1.0, 1.0, 1.0);
+      // // objList[1] = createCube(gl);
+      // // objList[2] = createCube(gl);
+      // // objList[3] = createCube(gl);
+      
+      // objList[0].translation = [ 0.0, 0.0, -20.0];
+      // objList[1].translation = [ 0.0, 1.0, -20.0];
+      // // objList[1].translation = [-2.0, 0.0, 0.0];
+      // // objList[2].translation = [ 0.0, 2.0, 0.0];
+      // // objList[2].rotation =    [ 0.0, 0.5, 0.0];
+      // // objList[2].rotAngle =    0.5;
+      // // objList[2].logicTick = function(obj, dt) {
+      // //   obj.rotAngle += dt;
+      // // };
+
+      // objList[3].translation = [ 0.0,-2.0, 0.0];
+
+
+      var then = 0;
+
+      function render(now) {
+        now *= 0.001;
+        const deltaTime = now - then;
+        then = now;
+
+        drawScene(gl, programInfo, objList, deltaTime);
+        requestAnimationFrame(render);
+      }
+
+      requestAnimationFrame(render);
+  </script>
+</html>

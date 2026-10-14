@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Unicorns and Rainbows</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        background: #1a1a1a;
+        color: #fff;
+        overflow: hidden;
+      }
+      canvas {
+        display: block;
+        width: 100vw;
+        height: 100vh;
+      }
+      #menu {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: #1a1a1a;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 100;
+      }
+      #menu.hidden {
+        display: none;
+      }
+      #menu h1 {
+        font-size: 3em;
+        margin-bottom: 2em;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+      }
+      #menu p {
+        font-size: 1.2em;
+        margin-bottom: 2em;
+        opacity: 0.8;
+      }
+      #levelButtons {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 1em;
+        max-width: 600px;
+      }
+      .level-btn {
+        padding: 1em 2em;
+        font-size: 1.1em;
+        background: #8b7355;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      .level-btn:hover {
+        background: #a0845f;
+        transform: scale(1.05);
+      }
+      .level-btn:active {
+        transform: scale(0.98);
+      }
+    </style>
+    <script type="module" crossorigin src="/assets/index-Rx7HOCCY.js"></script>
+  </head>
+  <body>
+    <div id="menu">
+      <h1>Unicorns and Rainbows</h1>
+      <p>Select a level (marble count):</p>
+      <div id="levelArea"></div>
+    </div>
+    <canvas></canvas>
+  </body>
+</html>

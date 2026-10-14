@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebGL Rock Paper Scissors</title>
+    <style>:root {--intensity: 255;}body{margin: 0;display: flex;justify-content: center;align-items: center;height: 100vh;flex-direction: column;}.overlay{position: absolute;top: calc(50% - 150px);left: calc(50% - 250px);width: 500px;height: 300px;background-color: rgba(128, 128, 128, 0.8);z-index: 2;padding:1rem;color: white;font-size: 20px;}canvas {display: block;position: relative;}.c{width: 100px;height: 100px;border-radius: 50%;position: absolute;top: 50%;left: 50%;transform: translate(-50%, -50%);z-index: 1;text-align: center;line-height: 100px;color: white;font-size:20px;}.red{background-color: rgb(var(--intensity), 0, 0);}.green{background-color: rgb(0, var(--intensity), 0);}</style>
+</head>
+<body>
+    <div id="overlay" class="overlay" hidden><p>Use arrow keys to move.</p><p>Press a for rock.</p><p>Press s for paper.</p><p>Press d for scissors.</p></div>
+    <div style="position: relative;top: 0;width: 800px;height: 30px;background-color: gray;z-index: 2;text-align: center;color: white;line-height: 30px;" id="status"></div>
+    <canvas id="glCanvas" width="800" height="600"></canvas>
+    <script src="./m.js"></script>
+    <div id="defeat" class="red c" hidden></div>
+    <div id="win" class="green c" hidden></div>
+</body>
+</html>

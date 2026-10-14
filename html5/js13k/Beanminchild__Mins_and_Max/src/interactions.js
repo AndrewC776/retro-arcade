@@ -1,0 +1,1099 @@
+import {    
+  MIN_INTERACTION_RADIUS,  
+ 
+  THROW_MAX_DISTANCE,
+  cols,
+  rows,
+  TOOL_TYPES,
+  TILE_TYPES,
+  PLANT_STAGES,
+   
+  BOX_INTERACTION_RADIUS,  
+  DOMINION_INTERACTION_RADIUS,
+  WATER_CAN_MAX,
+  BOX_COL,
+  BOX_ROW,  
+  WATER_POND_COL,
+  WATER_POND_ROW,  
+  SHOPKEEPER_COL,
+  SHOPKEEPER_ROW,
+  TASKS, 
+  FISH_RIPPLE_SPAWN_MS,
+  FISH_RIPPLE_RAMP_MS,
+  FISH_VISIBLE_MS,
+  FISH_CATCH_RADIUS,
+  FISH_SALE_PRICE,
+  POND_MIN_SOAK_MS,
+  // SIGNPOSTS, 
+  
+  
+} from "./constants.js";
+
+import { showModal } from "./modal.js";
+
+import { sfx } from "./sound.js";
+
+
+function isTopLeftQuadrant(col, row) { return col < cols / 2 && row < rows / 2; }
+
+
+function createTreeSprite() {
+  const s = document.createElement("canvas");
+  s.width = s.height = 64;
+  const g = s.getContext("2d");
+  g.fillStyle = "#654321"; g.fillRect(28, 40, 8, 16); // Trunk
+  g.fillStyle = "#2d5a2d"; g.beginPath(); g.arc(32, 32, 14, 0, 7); g.fill(); // Top
+  g.fillStyle = "#3d6a3d"; g.beginPath(); g.arc(29, 34, 10, 0, 7); g.fill(); // Shade
+  return s;
+}
+
+
+ 
+
+function createMinSprite(state) {
+  const sprite = document.createElement("canvas");
+  sprite.width = 32;
+  sprite.height = 32;
+  const g = sprite.getContext("2d");
+
+  g.translate(16, 16);
+
+  const isFollowing = state === "following" || state === "carrying" || state === "carrying_lumber" || state === "carrying_fish";
+  g.fillStyle = isFollowing ? "#f7c873" : "#8c5b2b";
+  
+  if (state === "going_to_box" || state === "returning_to_dominion") {
+    g.fillStyle = "#25e39a";
+  }
+
+  if (state === "tree_cutting") {
+    g.fillStyle = "#25e39a"; // Darker color for working
+  }
+
+  g.beginPath();
+  g.arc(0, 0, 8, 0, Math.PI * 2);
+  g.fill();
+
+  if (state === "carrying" || state === "returning_to_dominion") {
+    g.fillStyle = "#d9b44a";
+    g.beginPath();
+    g.arc(0, -12, 5, 0, Math.PI * 2);
+    g.fill();
+  }
+
+  if (state === "carrying_lumber") {
+    g.fillStyle = "#8b6f47";
+    g.save();
+    g.rotate(Math.PI / 4);
+    g.fillRect(-10, -2, 20, 4);
+    g.restore();
+  }
+
+    if (state === "carrying_fish") {
+    g.fillStyle = "#ffd54f";
+    g.beginPath();
+    g.ellipse(0, -12, 6, 3, 0, 0, Math.PI * 2);
+    g.fill();
+    g.fillStyle = "#ff8f00";
+    g.beginPath();
+    g.moveTo(5, -12); g.lineTo(9, -14); g.lineTo(9, -10); g.closePath(); g.fill();
+  }
+
+  if (state === "tree_cutting") {
+    // Show tool
+    g.strokeStyle = "#d4a574";
+    g.lineWidth = 2;
+    g.beginPath();
+    g.moveTo(-5, -5);
+    g.lineTo(5, 5);
+    g.stroke();
+  }
+
+  g.fillStyle = "#3a210f";
+  g.fillRect(-3, -1, 6, 2);
+
+  return sprite;
+  
+}
+
+
+
+export function updateFish(world, deltaMs) {
+  world.Z += deltaMs;
+  if (world.Z >= FISH_RIPPLE_SPAWN_MS) {
+    world.Z = 0;
+    const water = [];
+    world.t.forEach((row, r) => row.forEach((t, c) => t.type === TILE_TYPES.WATER && water.push({c,r})));
+    if (water.length) {
+      const {c,r} = water[(Math.random()*water.length)|0];
+      world.F.push({ col:c, row:r, phase:'ripple', timer:0, speed:1 });
+    }
+  }
+  world.F = world.F.filter(f => {
+    f.timer += deltaMs;
+    if (f.phase === 'ripple') {
+      f.speed = 1 + (f.timer / FISH_RIPPLE_RAMP_MS) * 6;
+      if (f.timer >= FISH_RIPPLE_RAMP_MS) { f.phase = 'fish'; f.timer = 0; }
+    }
+    return !(f.phase === 'fish' && f.timer >= FISH_VISIBLE_MS);
+  });
+}
+
+
+export function createWorld() {
+
+   
+   const mins = [];
+
+  // Grandpas Graveyard (randomized positions)
+  const gravestones = [
+     { col: 2 + Math.random() * 8,
+      row: 1 + Math.random() * 6,
+      id: 0}   
+  ];
+
+   // Mirror grave position into the other three quadrants
+  const g = gravestones[0];
+  const souls = [
+    { col: 21 + g.col, row: g.row, collected: false, revealed: false, id: "tr" },
+    { col: g.col,     row: 18 + g.row, collected: false, revealed: false, id: "bl" },
+    { col: 21 + g.col, row: 18 + g.row, collected: false, revealed: false, id: "br" }
+  ];
+   
+  const lumber = [];
+
+  const tiles = Array.from({ length: rows }, (_, row) =>
+    Array.from({ length: cols }, (_, col) => {
+      const TL = col < 15 && row < 15;
+      const TR = col >= 21 && row < 15;
+      const BR = col >= 21 && row >= 18;
+      const stone = (col>=15&&col<21) || (row>=15&&row<=17) || (col>=18&&col<20&&row===20);
+      const water = (row>=rows-3 && col<15);
+      const sand  = (row>=rows-6 && col<15 && row<rows-3);
+      const type = stone?TILE_TYPES.STONE : water?TILE_TYPES.WATER : sand?TILE_TYPES.SAND : TILE_TYPES.GRASS;
+
+      return {
+        type,
+        planted: false,
+        watered: false,
+        growth: 0,
+        // Hardcode the range directly or simplify the math
+        growDuration: 2000,
+        stage: PLANT_STAGES.EMPTY,
+        variant: TL ? "decay" : null,
+        hasTree: (BR && col % 2 === 0 && row % 2 === 0) ||
+                 (TR && (col === 21 || col === cols - 1 || row === 0 || row === 14)||
+                 (TL && (col === 14 || col === cols - 1 || row === 0 || row === 14))),
+        treeHealth: 15,
+        
+      };
+    })
+  );
+
+  
+  const treeSprite = createTreeSprite();
+  
+  const minSprites = {
+    loose: createMinSprite("loose"),
+    following: createMinSprite("following"),
+    carrying: createMinSprite("carrying"),
+    carrying_lumber: createMinSprite("carrying_lumber"),
+    carrying_fish: createMinSprite("carrying_fish"),
+    going_to_box: createMinSprite("going_to_box"),
+    returning_to_dominion: createMinSprite("returning_to_dominion"),
+    thrown: createMinSprite("loose"),
+    tree_cutting: createMinSprite("tree_cutting")
+  };
+
+  
+
+
+  return {
+   // K: { col: 36, row: 5 },
+    z: { col: BOX_COL, row: BOX_ROW },
+    y: { col: 38, row: 16 },
+        s: [
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0
+    ],
+    r: false,
+    u: false,
+    v: false,
+    x: 0,    
+    j: { col: WATER_POND_COL, row: WATER_POND_ROW },
+    S: false,
+    m: mins,    
+    b: 0,
+    t: tiles,
+    g: gravestones,
+    q: souls,
+    k: 0,
+    o: lumber,
+    T: treeSprite,
+    M: minSprites,
+    e: TOOL_TYPES.HANDS,
+    c: 0,
+    l: 0,
+    F: [],
+    Z: 0,
+    f: 0,
+    a: 0,
+    C: 0,
+    i: 0,        
+    I: 9,    
+    D: 5 * 60 * 1000,
+    d: 0,
+    p: 0,
+    n: 1,
+    w: 25    
+  };
+}
+
+
+// ... existing code ...
+
+// export function handleSignInteraction(character, world) {
+//   for (const sign of SIGNPOSTS) {
+//     if (Math.hypot(character.col - sign.c, character.row - sign.r) < 1.5) {
+//       showModal({
+//         title: sign.title,
+//         bodyHtml: `<p>${sign.text}</p>`,
+//         buttons: [{ label: "Close", className: "primary" }]
+//       });
+//       return true;
+//     }
+//   }
+//   return false;
+// }
+
+// export function drawSigns(ctx, worldToCanvas) {
+//   ctx.font = "24px serif";
+//   ctx.textAlign = "center";
+//   for (const s of SIGNPOSTS) {
+//     const { x, y } = worldToCanvas(s.c, s.r);
+//     ctx.fillText("🪧", x, y);
+//   }
+// }
+
+export function tryInteractWithShop(character, world) {
+  if (!world.K || Math.hypot(character.col - world.K.col, character.row - world.K.row) > 1.6) return false;
+
+  const emmie = (b, l) => showModal({ title: "Emmie", bodyHtml: `<p>${b}</p>`, buttons: [{ label: l, className: "modal-btn--close" }] });
+
+  if (world.x <= TASKS.findIndex(t => t.id === 'give') && world.s[4] < 1) {
+    if (character.held === 'crop') {
+      character.held = null; world.s[4]++; world.u = true;
+      world.K.col = SHOPKEEPER_COL; world.K.row = SHOPKEEPER_ROW;
+      emmie("You'll never get the farm back at this rate Max. Use the tasks I gave you to learn how to use Min to automate as much as possible! also here ur grandfathers axe!", "I H8 U.");
+    } else {
+      emmie("Before you use Min, prove you can farm by growing a crop and giving it to me. I'll give you something in return", "Wow. So generous.");
+    }
+    return true;
+  }
+
+  world.s[8] = 1;
+  world.S = true;
+  return true;
+}
+
+export function tryInteractWithGravestone(character, world) {
+  if (!world.g) return false;
+
+  for (let gravestone of world.g) {
+    const distance = Math.hypot(character.col - gravestone.col, character.row - gravestone.row);
+    if (distance <= 1.5) {
+      showModal({
+        title: "Here lies Max's Grandpa Sr.",
+        bodyHtml: `<p>"Hoe thee soul piece 3: A mirror of where I would lie in grass, beach, and trees.</p>`,
+        buttons: [{ label: "Hm", className: "modal-btn--close" }],
+      });
+      world.s[12]++;
+      return true;
+    }
+  }
+  return false;
+}
+
+function moveToward(min, targetCol, targetRow, speed = 0.12) {
+  const dx = targetCol - min.col;
+  const dy = targetRow - min.row;
+  const distance = Math.hypot(dx, dy);
+
+  if (distance > 0.01) {
+    const step = Math.min(speed, distance);
+    min.col += (dx / distance) * step;
+    min.row += (dy / distance) * step;
+  }
+}
+
+export function spawnNewMin(mins, col, row, initialState = "loose") {
+  const newMin = {
+    id: Date.now() + Math.random(),
+    col: col,
+    row: row,
+    state: initialState,
+    atHome:true,
+    isUnicornMin: false,
+    lineToken: Date.now(),
+    followIndex: 0,
+    target: null,
+    targetTile: null,
+    throwOrigin: null,
+    throwDistance: 0,
+    landed: false,
+    isDelivering: false,
+    carryingLumberForDelivery: false,
+    cuttingTimer: 0,
+    cuttingTreeCol: null,
+    cuttingTreeRow: null
+  };
+  mins.push(newMin);
+  return newMin;
+}
+
+export function updateMins(character, mins, world) {
+   if (Math.random() < 0.20) return; 
+  const { z: box, y: dominion } = world;
+
+  // === PERF: precompute tree-cutter counts ONCE (was O(n^2) filter per min) ===
+  const cutterCounts = {};
+  for (const m of mins) {
+    if (m.state === "tree_cutting") {
+      const key = m.cuttingTreeCol + "," + m.cuttingTreeRow;
+      cutterCounts[key] = (cutterCounts[key] || 0) + 1;
+    }
+  }
+
+  // 1. Sort followers so that those carrying crops/lumber are at the front of the line
+  const isCarrying = m => m.state.startsWith("carrying");
+
+  const followers = mins.filter((min) => min.state === "following" || isCarrying(min));
+  followers.sort((a, b) => {
+    const aC = isCarrying(a) ? 1 : 0;
+    const bC = isCarrying(b) ? 1 : 0;
+    if (aC !== bC) return bC - aC;
+    return (a.lineToken || 0) - (b.lineToken || 0);
+  });
+
+  const vx = [1, .7, 0, -.7, -1, -.7, 0, .7][character.dir] || 0;
+  const vy = [0, .7, 1, .7, 0, -.7, -1, -.7][character.dir] || 0;
+
+  followers.forEach((min, index) => {
+    
+    const offsetAmount = 0.7 + index * 0.25;
+
+    const targetCol = character.col - vx * offsetAmount;
+    const targetRow = character.row - vy * offsetAmount;
+
+    moveToward(min, targetCol, targetRow, 0.15);
+
+    // === PERF: squared distance instead of Math.hypot ===
+    const dxHome = min.col - targetCol;
+    const dyHome = min.row - targetRow;
+    if (dxHome * dxHome + dyHome * dyHome < 0.15 * 0.15) {
+      min.atHome = true;
+    }
+  });
+
+  // --- Lumber Cleanup (performance fix) ---
+  if (world.o && world.o.length > 200) {
+    world.o.splice(0, world.o.length - 200);
+  }
+
+  mins.forEach((min) => {
+
+    if (min.state === "loose" && ((min.col - character.col)**2 + (min.row - character.row)**2 < 1.5 || 
+        mins.some(o => o.state !== "loose" && o.state !== "in_pond" && (min.col - o.col)**2 + (min.row - o.row)**2 < 0.8))) {
+      min.state = "following";
+      min.lineToken = Date.now();
+      world.s[6]++;
+      world.v = true;
+      sfx("pick");
+    }
+
+    // --- Auto-pickup lumber when thrown min lands ---
+    if (min.landed && world.o && world.o.length > 0) {
+      for (let i = world.o.length - 1; i >= 0; i--) {
+        const lumberItem = world.o[i];
+        const distToLumber = Math.hypot(min.col - lumberItem.col, min.row - lumberItem.row);
+        if (distToLumber < 0.75) {
+          min.state = "carrying_lumber";
+          sfx("pick");
+          min.carryingLumberForDelivery = false;
+          world.o.splice(i, 1);
+          min.landed = false;
+          return;
+        }
+      }
+    }
+
+    if (min.isRainbowMin) {
+      const c = Math.floor(min.col), r = Math.floor(min.row);
+      const tile = world.t[r]?.[c];
+      
+      // If it's dirt and we have seeds, plant it instantly
+      if (tile && tile.type === TILE_TYPES.DIRT && !tile.planted && world.I > 0) {
+        tile.planted = true;
+        tile.watered = true;
+        tile.stage = PLANT_STAGES.SEED;
+        world.I--;
+      }
+      
+    }
+
+    mins.forEach((min) => {
+    // --- PROXIMITY WATERING: Water seeds nearby ---
+    if (min.isWaterMin || min.isRainbowMin) {
+      const c = Math.floor(min.col);
+      const r = Math.floor(min.row);
+      // Check a 3x3 area around the Min
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          const tile = world.t[r + dy]?.[c + dx];
+          if (tile && tile.planted && !tile.watered) {
+            tile.watered = true;
+          }
+        }
+      }
+    }})
+    
+
+    if (min.state === "in_pond") {
+      min.soakTimer -= 16; // matches existing tick used for cuttingTimer
+      if (min.soakTimer <= 0) {
+        min.state = "following";
+        min.isWaterMin = true;
+        world.s[26]++;
+        min.lineToken = Date.now();
+      }
+      return;
+    }
+
+    // --- NEW: Tree Cutting Cooperation ---
+    if (min.state === "tree_cutting") {
+      const tCol = min.cuttingTreeCol;
+      const tRow = min.cuttingTreeRow;
+      const tile = world.t[tRow]?.[tCol];
+
+      if (!tile || !tile.hasTree) {
+        min.state = "loose";
+        min.cuttingTimer = 0;
+        min.cuttingTreeCol = null;
+        min.cuttingTreeRow = null;
+        return;
+      }
+
+      moveToward(min, tCol + 0.5, tRow + 0.5, 0.12);
+
+      // === PERF: use precomputed count instead of mins.filter(...) ===
+      const totalCutters = cutterCounts[tCol + "," + tRow] || 1;
+      let cutTime;
+      if (totalCutters === 1) cutTime = 16000;
+      else if (totalCutters === 2) cutTime = 8000;
+      else cutTime = 2000;
+
+      min.cuttingTimer += 16;
+      if (min.cuttingTimer >= cutTime) {
+        tile.hasTree = false;
+        tile.lumber = true;
+
+        if (world.o.length < 200) {
+          world.o.push({
+            col: tCol + 0.5,
+            row: tRow + 0.5,
+            id: Date.now() + Math.random()
+          });
+        }
+        world.s[5]++;
+        min.state = "carrying_lumber";
+        
+        const pushDist = 2;
+        const angle = Math.atan2(min.row - (tRow + 0.5), min.col - (tCol + 0.5));
+        min.col = (tCol + 0.5) + Math.cos(angle) * pushDist;
+        min.row = (tRow + 0.5) + Math.sin(angle) * pushDist;
+        min.cuttingTimer = 0;
+        min.cuttingTreeCol = null;
+        min.cuttingTreeRow = null;
+        min.landed = false;
+
+        mins.forEach(m => {
+          if (m.state === "tree_cutting" && m.cuttingTreeCol === tCol && m.cuttingTreeRow === tRow && m.id !== min.id) {
+            m.state = "loose";
+            m.cuttingTimer = 0;
+            m.cuttingTreeCol = null;
+            m.cuttingTreeRow = null;
+            const pushDist = 1.5;
+            const angle = Math.atan2(m.row - (tRow + 0.5), m.col - (tCol + 0.5));
+            m.col = (tCol + 0.5) + Math.cos(angle) * pushDist;
+            m.row = (tRow + 0.5) + Math.sin(angle) * pushDist;
+          }
+        });
+      }
+    }
+
+// --- Dominion Automation Logic ---
+    if (min.state === "thrown") {
+      const dx = min.col - dominion.col;
+      const dy = min.row - dominion.row;
+      if (dx * dx + dy * dy < 1.5 * 1.5 && world.c > 0 && world.e === "min") {
+        min.state = "going_to_box";
+      }
+    }
+    
+
+    if (min.state === "going_to_box") {
+      moveToward(min, box.col, box.row, 0.14);
+      const dx = min.col - box.col;
+      const dy = min.row - box.row;
+      if (dx * dx + dy * dy < 0.12 * 0.12) {
+        if (world.c > 0) {
+          world.c--;
+          min.state = "returning_to_dominion";
+        } else {
+          min.state = "loose";
+        }
+      }
+    }
+
+    if (min.state === "returning_to_dominion") {
+      moveToward(min, dominion.col, dominion.row, 0.14);
+      const dx = min.col - dominion.col;
+      const dy = min.row - dominion.row;
+      if (dx * dx + dy * dy < 0.12 * 0.12) {
+        spawnNewMin(mins, dominion.col, dominion.row, "following");
+        world.s[6]++;
+        min.state = "following";
+        min.lineToken = Date.now();
+      }
+    }
+// Track reserved tiles to prevent overlap
+  const reservedTiles = new Set();
+  mins.forEach(m => {
+    if (m.state === "harvesting" && m.targetTile) {
+      reservedTiles.add(`${m.targetTile.col},${m.targetTile.row}`);
+    }
+  });
+
+
+    // --- Standard Actions ---
+    if (min.state === "thrown") {
+      const target = min.isDelivering 
+        ? { col: world.z.col, row: world.z.row }
+        : (min.target || { col: character.col, row: character.row });
+
+      moveToward(min, target.col, target.row, 0.14);
+
+      if (min.throwOrigin && !min.isDelivering) {
+        min.throwDistance = Math.hypot(
+          min.col - min.throwOrigin.col,
+          min.row - min.throwOrigin.row
+        );
+      }
+
+      const dxT = min.col - target.col;
+      const dyT = min.row - target.row;
+      const reachedTarget = (dxT * dxT + dyT * dyT) <= 0.18 * 0.18;
+
+      if (min.isDelivering && reachedTarget) {
+          if (min.carryingLumberForDelivery) {
+           world.l += 1; world.s[11] = (world.s[11] || 0) + 1;
+        } else if (min.state === "carrying_fish" || min.carryingFish) {
+          world.w += FISH_SALE_PRICE;
+          world.s[33] += FISH_SALE_PRICE;
+          world.fishCaught += 1;
+          world.s[7]++;
+          min.carryingFish = false;
+        } else if (min.cropTL) {
+          world.b++;
+          world.s[9]++;
+        } else {
+          world.c++;
+          world.s[9]++;
+        }
+        min.cropTL = false;     
+        min.state = "following";
+        min.isDelivering = false;
+        min.lineToken = Date.now();
+        return;
+      }      
+
+      if (reachedTarget || (!min.isDelivering && (min.throwDistance ?? 0) >= THROW_MAX_DISTANCE)) {
+        const tCol = target.col|0;
+        const tRow = target.row|0;
+
+        // --- MAGNETIC SEARCH (Priority: 1. Grown, 2. Growing, 3. Dirt) ---
+        const searchRadius = 1;
+        let bestTarget = null; 
+
+        for (let dy = -searchRadius; dy <= searchRadius; dy++) {
+          for (let dx = -searchRadius; dx <= searchRadius; dx++) {
+            const r = tRow + dy, c = tCol + dx;
+            const tile = world.t[r]?.[c];
+            if (!tile) continue;
+            const tileKey = `${c},${r}`;
+            if (reservedTiles.has(tileKey)) continue;
+
+            // Priority 1: Fully Grown Crop
+            if (tile.stage === PLANT_STAGES.CROP) {
+              bestTarget = { type: 'crop', col: c, row: r, p: 1 };
+              break; // Found highest priority, stop looking in this row
+            }
+            // Priority 2: Growing Crop (Seed/Sprout)
+            if (tile.planted && (!bestTarget || bestTarget.p > 2)) {
+              bestTarget = { type: 'crop', col: c, row: r, p: 2 };
+            }
+            // Priority 3: Bare Dirt for Planting (Rainbow Min only)
+            if (min.isRainbowMin && tile.type === TILE_TYPES.DIRT && !tile.planted && world.I > 0 && (!bestTarget || bestTarget.p > 3)) {
+              bestTarget = { type: 'plant', col: c, row: r, p: 3 };
+            }
+          }
+          if (bestTarget?.p === 1) break; // Found grown crop, stop entire search
+        }
+
+        const foundMagnetic = bestTarget;
+    
+
+        // --- EXECUTE MAGNETIC ACTION ---
+        if (foundMagnetic) {
+          if (foundMagnetic.type === 'crop') {
+            if (min.isWaterMin && !world.t[foundMagnetic.row][foundMagnetic.col].watered) world.t[foundMagnetic.row][foundMagnetic.col].watered = true;
+            min.state = "harvesting";
+            min.targetTile = { col: foundMagnetic.col, row: foundMagnetic.row };
+            min.col = foundMagnetic.col + 0.5;
+            min.row = foundMagnetic.row + 0.5;
+            reservedTiles.add(`${foundMagnetic.col},${foundMagnetic.row}`);
+            return;
+          } else if (foundMagnetic.type === 'plant') {
+            const tile = world.t[foundMagnetic.row][foundMagnetic.col];
+            tile.planted = true;
+            tile.watered = true;
+            tile.stage = PLANT_STAGES.SEED;
+            world.I -= 1;
+            min.isWaterMin = true; 
+            min.state = "harvesting";
+            min.targetTile = { col: foundMagnetic.col, row: foundMagnetic.row };
+            min.col = foundMagnetic.col + 0.5;
+            min.row = foundMagnetic.row + 0.5;
+            min.landed = true;
+            reservedTiles.add(`${foundMagnetic.col},${foundMagnetic.row}`);
+            return;
+          }
+        }
+
+        // --- NON-MAGNETIC FALLBACK (Exact Tile Only) ---
+        const tile = world.t[tRow]?.[tCol];
+
+        // Check for Tree
+        if (tile?.hasTree) {
+          min.state = "tree_cutting";
+          min.cuttingTreeCol = tCol;
+          min.cuttingTreeRow = tRow;
+          min.cuttingTimer = 0;
+          sfx('chop');
+          return;
+        }
+
+        // Check for Lumber (world.o items at this exact tile)
+        const lumberIndex = world.o.findIndex(l => (l.col|0) === tCol && (l.row|0) === tRow);
+        if (lumberIndex !== -1) {
+          world.o.splice(lumberIndex, 1);
+          min.state = "carrying_lumber";
+          min.col = tCol + 0.5;
+          min.row = tRow + 0.5;
+          min.landed = false;
+          return;
+        }
+
+
+        const activeFish = world.F.find(f => f.phase==='fish' && f.col===tCol && f.row===tRow);
+        if (!min.isDelivering && activeFish) {
+          world.F = world.F.filter(f=>f!==activeFish);
+          min.state = 'carrying_fish';
+          min.carryingFish = true;
+          min.landed = false;
+          return;
+        }
+
+        const pond = world.j;
+        if (pond && tCol >= pond.col && tCol < pond.col + 2 && tRow >= pond.row && tRow < pond.row + 2) {
+          min.state = "in_pond";
+          min.soakTimer = POND_MIN_SOAK_MS;
+          min.col = pond.col + 1;
+          min.row = pond.row + 1;
+          return;
+        } else {
+          min.state = "following";
+          min.target = null;
+          min.targetTile = null;
+          min.throwOrigin = null;
+          min.throwDistance = 0;
+          min.landed = true;
+          min.isDelivering = false;
+          min.lineToken = Date.now();
+        }
+      }
+    }
+             
+    
+  
+
+     
+    // --- UNIFIED HARVESTING & UNICORN LOGIC ---
+      if (min.state === "harvesting") {
+          if (!min.targetTile) {
+            min.state = "following";
+            min.target = null;
+            return;
+          }
+        
+          const tile = world.t[min.targetTile.row]?.[min.targetTile.col];
+        
+          if (!tile) {
+            min.state = "following";
+            min.targetTile = null;
+            return;
+          }        
+          if (tile.stage === PLANT_STAGES.CROP) {
+            tile.planted = false;
+            tile.watered = false;
+            tile.growth = 0;
+            tile.stage = PLANT_STAGES.EMPTY;
+            tile.type = TILE_TYPES.DIRT;
+            min.state = "carrying";
+            sfx("pick");
+            min.cropTL = isTopLeftQuadrant(min.targetTile.col, min.targetTile.row);
+            min.targetTile = null;
+          }
+        }
+  });
+}    
+
+export function tryDepositToBox(character, box, world) {
+  if (!character.held) return false;
+
+  if (Math.hypot(character.col - box.col, character.row - box.row) <= BOX_INTERACTION_RADIUS) {    
+    if (character.held === "fish") {      
+      world.w += FISH_SALE_PRICE;
+      world.s[33] += FISH_SALE_PRICE;
+      world.f += 1;
+        } else {
+      if (character.held === "lumber") {
+        world.l += 1;
+        world.s[11] = (world.s[11] || 0) + 1;
+        world.s[11]++;
+      } else if (character.held === "crop") {
+        world.s[9]++;
+        if (character.cropTL) world.b++;
+        else world.c++;
+        sfx('chop');
+      }
+    }
+    character.held = null; character.cropTL = false;
+    return true;
+  }
+  return false;
+}
+
+export function tryDepositToDominion(character, dominion, world) {
+  if (character.held !== "crop") return false;
+
+  if (Math.hypot(character.col - dominion.col, character.row - dominion.row) <= DOMINION_INTERACTION_RADIUS) {
+    character.held = null;
+    spawnNewMin(world.m, dominion.col, dominion.row, "loose");
+    return true;
+  }
+  return false;
+}
+
+export function tryCatchFish(character, world) {
+  if (character.held) return false;
+  for (const f of world.F) {
+    if (f.phase !== 'fish') continue;
+    if (Math.hypot(character.col - (f.col + 0.5), character.row - (f.row + 0.5)) <= FISH_CATCH_RADIUS) {
+      character.held = 'fish';
+      world.F = world.F.filter(x => x !== f);
+      return true;
+    }
+  }
+  return false;
+}
+
+export function tryHarvestCrop(character, world) {
+  if (character.held) return false;
+
+const c = character.col|0, r = character.row|0;
+  for (let dy = -1; dy <= 1; dy++) {
+    for (let dx = -1; dx <= 1; dx++) {
+      const tile = world.t[r + dy]?.[c + dx];
+      if (tile && tile.stage === PLANT_STAGES.CROP) {
+        tile.planted = false;
+        tile.watered = false;
+        tile.growth = 0;
+        tile.stage = PLANT_STAGES.EMPTY;
+        tile.type = TILE_TYPES.DIRT;
+        character.held = "crop";
+        character.cropTL = isTopLeftQuadrant(c + dx, r + dy);
+        world.s[3]++;
+        sfx('pick');
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+export function tryTakeFromMin(character, mins, world) {
+  if (character.held) return false;
+
+  for (const min of mins) {
+    if (min.state !== "carrying" && min.state !== "carrying_lumber" && min.state !== "carrying_fish") continue;
+
+    if (Math.hypot(min.col - character.col, min.row - character.row) <= MIN_INTERACTION_RADIUS) {
+      character.held = min.state === "carrying" ? "crop" : (min.state === "carrying_fish" ? "fish" : "lumber");
+      character.cropTL = min.state === "carrying" ? !!min.cropTL : false;
+      if (character.held === "crop") world.s[3]++;
+      min.state = "following";
+      return true;
+    }
+  }
+  return false;
+}
+
+export function tryCollectMin(character, mins, world) {
+  for (const min of mins) {
+    if (min.state !== "loose") continue;
+
+    const distance = Math.hypot(min.col - character.col, min.row - character.row);
+
+    if (distance <= MIN_INTERACTION_RADIUS) {
+      min.state = "following";
+      min.target = null;
+      min.landed = false;
+      min.throwDistance = 0;
+      min.throwOrigin = null;
+      min.lineToken = Date.now(); // Ensure min goes to back of line
+      world.s[6]++;
+      sfx('pick');
+      world.v = true;
+      return min;
+    }
+  }
+  return null;
+}
+
+
+export function throwMin(character, mins, box, cursor = null) {
+  const isC = (s) => s.startsWith("carrying");
+  // Filter for available mins and sort in one go
+  const m = mins.filter(m => (isC(m.state) || m.state === "following") && m.atHome)
+                .sort((a, b) => (isC(a.state) - isC(b.state)) || (a.lineToken - b.lineToken));
+
+  const min = m.find(m => isC(m.state)) || m.find(m => m.state === "following");
+  if (!min) return null;
+
+  min.atHome = false; min.throwOrigin = { ...character }; min.throwDistance = 0; min.landed = false;
+
+  if (isC(min.state)) {
+    min.isDelivering = true;
+    min.carryingLumberForDelivery = (min.state === "carrying_lumber");
+    min.carryingFish = (min.state === "carrying_fish");
+    min.state = "thrown"; min.target = { ...box };
+  } else {
+    const dx = (cursor?.col || character.col) - character.col, dy = (cursor?.row || character.row) - character.row;
+    const d = Math.hypot(dx, dy);
+    min.target = { 
+      col: character.col + (dx / d || 0) * Math.min(d, THROW_MAX_DISTANCE),
+      row: character.row + (dy / d || 0) * Math.min(d, THROW_MAX_DISTANCE)
+    };
+    min.state = "thrown";
+  }
+  return min;
+}
+
+function clampTileValue(value, max) {
+  return Math.max(0, Math.min(max - 1, Math.floor(value)));
+}
+
+export function useToolAtCursor(world, cursor, character) {
+  if (!cursor) return false;
+  
+  let col = clampTileValue(cursor.col, cols);
+  let row = clampTileValue(cursor.row, rows);
+  
+  const tile = world.t[row][col];
+  if (!tile) return false;
+
+
+  // Define buried soul at this tile BEFORE using it
+  const buriedSoul = world.q.find(s => !s.revealed && !s.collected && Math.floor(s.col) === col && Math.floor(s.row) === row);
+  // Prevent interactions on stone tiles
+  if (tile.type === TILE_TYPES.STONE) return false;
+
+  // Prevent interactions on sand and water tiles
+  if (tile.type === TILE_TYPES.SAND || tile.type === TILE_TYPES.WATER && world.e !== TOOL_TYPES.WATERING_CAN){
+
+    if (!buriedSoul) return false;
+  } 
+
+ 
+  if (world.e === TOOL_TYPES.HOE) {
+    // Determine if we hoe 1 tile or 5 (cross pattern)
+    const pattern = world.h ? [[0,0], [0,-1], [0,1], [-1,0], [1,0]] : [[0,0]];
+    let hoedSomething = false;
+    
+    for (const [dx, dy] of pattern) {
+      const targetTile = world.t[row + dy]?.[col + dx];
+      // Block hoeing in the "decay" (purple) quadrant until 3 souls are collected
+      if (targetTile?.variant === "decay" && world.k < 3) continue;
+     
+      const soul = world.q.find(s => !s.revealed && Math.hypot(s.col - (col + dx), s.row - (row + dy)) < 1.0);
+      if (soul) soul.revealed = true;
+      if (targetTile && targetTile.type !== TILE_TYPES.STONE && !targetTile.hasTree) {
+        targetTile.type = TILE_TYPES.DIRT;
+        targetTile.planted = false;
+        targetTile.watered = false;
+        targetTile.growth = 0;
+        targetTile.stage = PLANT_STAGES.EMPTY;
+        world.s[0]++;
+        hoedSomething = true;
+      }
+    }
+    if (hoedSomething) sfx('chop');
+    return hoedSomething;
+  }
+
+  if (world.e === TOOL_TYPES.SEEDS) {
+    if (tile.type === TILE_TYPES.DIRT && !tile.planted && world.I > 0) {
+      tile.planted = true;
+      tile.watered = false;
+      tile.growth = 0;
+      tile.growDuration = 2000;
+      tile.stage = PLANT_STAGES.SEED;
+      world.I -= 1;
+      world.s[1]++;
+      sfx('chop');
+      return true;
+      
+    }
+    return false;
+  }
+
+  if (world.e === TOOL_TYPES.WATERING_CAN) {
+    // Refill can if clicking on the pond (assuming 3x3 pond)
+    const isPondTile = col >= WATER_POND_COL && col < WATER_POND_COL + 3 &&
+                       row >= WATER_POND_ROW && row < WATER_POND_ROW + 3;
+    if (isPondTile && world.a < WATER_CAN_MAX) {
+      world.a += 1;
+      world.s[10]++;
+      sfx('water');
+      return true;
+    }
+
+    if (tile.planted && !tile.watered && world.a > 0) {
+      tile.watered = true;
+      world.a -= 1;
+      world.s[2]++;
+      sfx('water');
+      return true;
+    }   
+    return false;
+  } 
+
+
+  if (world.e === TOOL_TYPES.AXE) {
+    // Only can axe tiles with trees
+    if (!tile.hasTree) return false;
+    
+
+    // Decrement tree health
+    tile.treeHealth -= 1;
+    sfx('chop');
+
+    // If tree is felled
+    if (tile.treeHealth <= 0) {
+      tile.hasTree = false;
+      tile.lumber = true;
+      // Add lumber object to world.o array
+      world.o.push({
+        col: col + 0.5,
+        row: row + 0.5,
+        id: Date.now() + Math.random()
+      });
+      world.s[5]++;
+      return true;
+    }
+
+    return true; // Swing counted even if not fully felled
+  }
+
+  return false;
+}
+
+export function tryCollectSoul(character, world) {
+  for (const soul of world.q) {
+    if (soul.collected || !soul.revealed) continue; // must be dug up first
+    if (Math.hypot(character.col - soul.col, character.row - soul.row) <= 1.5) {
+      soul.collected = true;
+      world.k++;
+      sfx('pick');
+      if (world.k === 3) {
+        showModal({
+          title: "Souls Restored",
+          bodyHtml: `<p>Crops in purple soil sell for TRIPLE!</p>`,
+          buttons: [{ label: "Lit", className: "modal-btn--close" }]
+        });
+      }
+      return true;
+    }
+  }
+  return false;
+}
+
+
+export function tryPickupLumber(character, world) {
+  if (character.held) return false;
+  const c = character.col | 0, r = character.row | 0;
+  
+  for (let dy = -1; dy <= 1; dy++) {
+    for (let dx = -1; dx <= 1; dx++) {
+      const i = world.o.findIndex(l => (l.col | 0) === (c + dx) && (l.row | 0) === (r + dy));
+      if (i !== -1) {
+        character.held = "lumber";
+        world.o.splice(i, 1);
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+
+
+export function updateWorld(world, deltaMs, character) {
+  // 1. Handle Crop Growth
+   const mult = Math.pow(1.187, world.x);  
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      const t = world.t[row][col];
+      if (!t.planted || !t.watered || t.stage === PLANT_STAGES.CROP) continue;
+
+      t.growth += deltaMs;
+      const limit = t.growDuration * mult;
+      
+      t.stage = t.growth >= limit ? PLANT_STAGES.CROP 
+              : t.growth >= limit * 0.6 ? PLANT_STAGES.SPROUT 
+              : PLANT_STAGES.SEED;
+    }
+  }
+
+  // 2. Update dominion position
+   if (world.s[6] >= 6) {
+    const t = Date.now() / 3000;
+    world.y.col = 38 + Math.sin(t) * 15 + Math.sin(t * 0.7) * 10;
+    world.y.row = 8 + Math.cos(t * 0.5) * 10 + Math.cos(t * 1.2) * 5;    
+  }
+
+  // 3. Handle fish
+  updateFish(world, deltaMs);
+}

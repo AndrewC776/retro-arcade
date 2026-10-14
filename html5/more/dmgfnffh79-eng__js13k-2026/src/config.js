@@ -1,0 +1,11 @@
+export const TAU = Math.PI*2;
+export const rainbowColors = ["#ff3b30","#ff9500","#ffd60a","#34c759","#32ade6","#5856d6","#af52de"];
+export const noteFrequencies = [1046.50,987.77,932.33,880.00,830.61,783.99,739.99,698.46,659.26,622.25,587.33,554.37,523.25];
+export const melodySequence = [12,10,8,10,12,10,8,7,12,11,9,10];
+export const sadMelody = [261.63,293.66,329.63,293.66,261.63,null];
+export const CLOUD_MAX_COUNT = 10;
+export const CLOUD_SINK_SPEED_MIN = 4;
+export const CLOUD_SINK_SPEED_MAX = 12;
+export const CLOUD_SPACING_Y = 150;
+export const RAIN_PARTICLE_COUNT = 180;
+export const SNOW_PARTICLE_COUNT = 80;

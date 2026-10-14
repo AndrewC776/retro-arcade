@@ -1,0 +1,240 @@
+#c {
+    width: 100vw;
+    outline: 0;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-crisp-edges;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    font-size: 10px;
+    box-shadow: inset 0px 0px 0px 1px #fff;
+}
+
+/* Get rid of any margins, set background black, use flexbox to center */
+html, body {
+    margin: 0;
+    background-color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-style: italic;
+    overflow: hidden;
+}
+
+h1, h2, h3 {
+    -webkit-text-stroke: 1px white;
+}
+h1 {
+    text-align: center;
+    font-size: 14vw;
+    margin: .1em 0 0 0;
+}
+
+h2 {
+    text-align: center;
+    font-size: 5vw;
+    margin: 0 0 .05em 0;
+}
+
+h3 {
+    text-align: center;
+    font-size: 2.75vw;
+    margin: .1em 0 .1em 0;
+}
+
+button {
+    background: none;
+    border: none;
+    font-size: inherit;
+    font-family: inherit;
+    font-style: inherit;
+    color: black;
+}
+
+button:hover {
+    -webkit-text-stroke: 2px white;
+    cursor: pointer;
+}
+
+button:active, #available, #fs {
+    animation-duration: .25s;
+    animation-iteration-count: 1;
+    color: #fff;
+}
+
+#items, #statItems {
+    margin: .5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: scroll;
+    max-width: 100%;
+}
+
+#store, #stats {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+#available {
+    margin: .5em;
+    font-size: 1vw;
+}
+
+#buy:not(:empty) {
+    margin-top: 1em;
+    border: 1px #fff solid;
+}
+
+#buy, #available {
+    color: #fff;
+    vertical-align: middle;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    padding: .5em;
+}
+
+#buy img, #available img {
+    margin: .2em .5em 0;
+}
+
+button.item, p.stat {
+    color: #fff;
+    border: 1px solid #fff;
+    width: 6em;
+    height: 6em;
+    margin: 0 1em;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+p.stat {
+    border: none;
+}
+
+button.item.owned {
+    border: 1px solid #ccc;
+    color: #ccc;
+    text-decoration: line-through;
+}
+
+.itemAmount {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: .5em;
+}
+
+.itemAmount img {
+    margin-left: .25em;
+}
+
+/* Input whatever aspect ratio you use here */
+@media (min-aspect-ratio: 2/1) {
+    #c {
+        height: 100vh; /* Fallback for browsers that do not support Custom Properties */
+        height: calc(var(--vh, 1vh) * 100);
+        width: auto;
+    }
+}
+
+#wrapper {
+    position: absolute;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+    width: 100%;
+}
+
+#screens {
+    position: absolute;
+}
+
+.screen {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#menu {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+#store {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#separator {
+    margin: 0 2.5em;
+    border-left: 1px white solid;
+}
+
+.storeList {
+    width: 40%;
+}
+
+p {
+    text-align: center;
+    color: #fff;
+    font-size: 1.75vw;
+}
+
+#fs {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    z-index: 20;
+}
+
+#coilMain {
+    display: none;
+}
+
+@media (orientation:landscape) {
+    h1 {
+        font-size: 14vh;
+        margin: .15em 0;
+    }
+    h2 {
+        font-size: 8vh;
+    }
+    button.item {
+        width: auto;
+    }
+    #available {
+        font-size: 3vh;
+    }
+}
+
+@supports (-webkit-touch-callout: none) {
+    #fs {
+        display: none;
+    }
+  }
+  
+@keyframes emphasize {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.5);
+    }
+    100% {
+        transform: scale(1);
+    }
+}

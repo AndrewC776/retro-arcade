@@ -1,0 +1,5 @@
+getDelta();
+gameLoop();
+
+loadGameMenu();
+//loadGameAction();

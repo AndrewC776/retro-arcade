@@ -1,0 +1,79 @@
+/* Get rid of any margins, set background black, use flexbox to center */
+/* REM Defined in Constants */
+/* TODO: SVG fills and strokes */
+/* TODO: Color variables */
+:root {
+    --c-darkgrey: #111;
+    --c-gold: rgb(155, 132, 2);
+    --c-black: rgb(5, 0, 0);
+    --c-red: #832323;
+    --c-darkred: #5d3434;
+}
+
+* {
+    margin: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    background-color: #000;
+    -webkit-font-smoothing: none;
+    font-family: monospace;
+    overflow: hidden;
+}
+
+.fill {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+.centered {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+}
+
+#loading-canvas {
+    background: var(--c-black);
+}
+
+#start {
+    z-index: 100;
+    cursor: pointer;
+    outline: none;
+    padding: 1.5rem;
+    border: 0.2rem solid var(--c-gold);
+    color: var(--c-gold);
+    background: none;
+    letter-spacing: 0.25rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+#start:hover {
+    background-color: var(--c-gold);
+    color: var(--c-black);
+}
+
+
+canvas {
+    image-rendering: pixelated;
+}
+
+#container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+    box-sizing: border-box;
+}
+
+#container canvas {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}

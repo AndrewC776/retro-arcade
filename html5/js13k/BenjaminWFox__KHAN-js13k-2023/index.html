@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <title>JS13K Demo</title>
+  <script type="module" src="/src/index.ts"></script>
+  <link rel="stylesheet" href="/context.css" />
+  <link rel="stylesheet" href="/sprites.css" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/title.css" />
+  <link rel="stylesheet" href="/card.css" />
+  <link rel="stylesheet" href="/help.css" />
+</head>
+
+<body>
+  <div id="board">
+    <div id="menubuttons">
+      <button id="music" class="pixel-border stopped">Music</button>
+      <button id="sfx" class="pixel-border">SFX</button>
+      <button id="tutorial" class="pixel-border hide">Help/Info</button>
+    </div>
+    <div id="deckdisplay" class="hide"></div>
+    <button id="confirmcard" disabled class="pixel-border hide">Confirm Card</button>
+    <div id="tutorialtext">
+      <button id="gotit" class="pixel-border hide">Ok, got it!</button>
+      <div id="overviewtext">
+        Goal: Click/tap your cards to defeat enemies or buff yourself, the Khan!
+        Plan based on enemy intentions: they may attack, defend, or use an ability.
+        Each new stage, choose a new card to add to your deck, or a new ability.
+        Can you make it all the way and defeat the King of the West?
+        <br/><br/>
+        Abilities:<br/>
+        DEFEND/D - block X attack damage, lasts 1 turn. <br/>
+        ENRAGE/E - boost attack damage 25% for X turns. <br/>
+        WEAKEN/W - reduce attack damage 25% and defense gain 50% for X turns.
+        <br/><br/>
+        Hover/tap D, E, W, and enemy intention icons for a reminder!
+      </div>
+    </div>
+    <div id="overlay"></div>
+    <div id="context" class="hide">
+      <div id="message" class="pixel-border hide">
+        <div id="content">
+        </div>
+        <button class="pixel-border" id="context-close">Continue ...</button>
+      </div>
+    </div>
+    <div id="ground"></div>
+    <div id="title">
+      <h1>KHAN</h1>
+      <section id="menu">
+        <!-- <button id="continue" class="pixel-border">continue</button> -->
+        <button id="new" class="pixel-border">new game</button>
+        <div id="difficulty-wrapper" class="pixel-border">
+        Difficulty
+        <br/><br/>
+        <select id="difficulty">
+          <option value="1">Normal</option>
+          <option value="2">Challenging - Enemy Damage &amp; Defense Gain +50%</option>
+          <option value="3">Really Hard - Enemy Life, Damage &amp; Defense Gain +50%</option>
+          <option value="4">Maybe Impossible - Enemy Life, Attack, Defense Gain +100%</option>
+          <option value="5">Probably Impossible - Enemy Life, Attack, Defense Gain +150%</option>
+        </select>
+      </div>
+      </section>
+    </div>
+    <div id="game" class="hide">
+      <h2>
+        <div id="stage">Stage: 1 / 8</div>
+        <div id="round">Round: 1</div>
+        <div id="alert"></div>
+      </h2>
+      <div id="enemy">
+      </div>
+      <div id="player">
+        <button id="endturn" class="pixel-border">End Turn</button>
+        <button id="viewdeck" class="pixel-border">View Deck</button>
+      </div>
+      <div id="deck-done">
+        <div id="deck">Draw: 0</div>
+        <div id="stamina">Stamina: 0</div>
+        <div id="done">Discard: 0</div>
+      </div>
+      <div id="card-holder">
+      </div>
+    </div>
+  </div>
+</body>
+</html>

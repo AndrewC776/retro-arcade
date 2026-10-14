@@ -1,0 +1,1168 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="initial-scale=1, user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+<title>HV Recon</title>
+<link rel="apple-touch-icon-precomposed" href="img/hvrecon-57x57.png"/>
+<style type="text/css">
+* {
+  cursor: default;
+  margin: 0;
+  padding: 0;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+}
+*::selection {
+  background: transparent;
+  color: transparent;
+}
+html {
+  height: 100%;
+  font-size: 62.5%;
+  font-family: Helvetica, sans-serif;
+  -webkit-text-size-adjust: none;
+}
+body {
+  background: #313431;
+  color: #ded8de;
+}
+a {
+  color: #add3f7;
+  text-decoration: none;
+}
+p {
+  font-size: 1.2rem;
+  line-height: 1.5rem;
+}
+#wrapper {
+  width: 320px;
+  margin: 0 auto;
+}
+#viewport {
+  position: relative;
+  overflow: hidden;
+}
+#terrain {
+  position: absolute;
+  pointer-events: none;
+}
+.row {
+  position: relative;
+  display: block;
+  height: 20px;
+  width: 100%;
+}
+.tile {
+  position: absolute;
+  display: block;
+  height: 20px;
+  width: 20px;
+}
+.snow {
+  background: url(img/snow.png) 10px 0 repeat-x;
+}
+.ice2snow-left {
+  background: url(img/snow.png) 0 -40px repeat-x;
+}
+.ice2snow-top {
+  background: url(img/snow.png) 0 -20px repeat-x;
+}
+.ice2snow-bottom {
+  background: url(img/snow.png) 0 -60px repeat-x;
+}
+.ice2snow-top-fill,
+.ice2snow-bottom-fill {
+  background: url(img/snow.png) 0 -40px repeat-x;
+}
+.ice2snow-left:before,
+.ice2snow-top:before,
+.ice2snow-top-fill:before,
+.ice2snow-bottom:before,
+.ice2snow-bottom-fill:before {
+  content: "";
+  position: relative;
+  display: block;
+  height: 20px;
+  width: 20px;
+  background: url(img/icicles.png) 0 0 no-repeat;
+}
+.ice2snow-left:before {
+  background-position: -80px -20px;
+}
+.ice2snow-top:before {
+  background-position: -80px 0;
+}
+.ice2snow-top-fill:before {
+  background-position: -160px -20px;
+}
+.ice2snow-bottom:before {
+  background-position: -80px -40px;
+}
+.ice2snow-bottom-fill:before {
+  background-position: -160px 0;
+}
+#copter {
+  display: block;
+  position: absolute;
+  top: 20px;
+  left: 140px;
+}
+.dialog {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  display: block;
+  height: 100%;
+  width: 280px;
+  background: #424542;
+  padding: 10px 20px;
+  -webkit-transition: top 1.5s ease-in-out;
+     -moz-transition: top 1.5s ease-in-out;
+       -o-transition: top 1.5s ease-in-out;
+          transition: top 1.5s ease-in-out;
+}
+.dialog:before {
+  content: "";
+  position: relative;
+  top: -10px;
+  left: -20px;
+  display: block;
+  height: 3px;
+  width: 320px;
+  background: #424542;
+  border-top:    1px solid #525552;
+  border-bottom: 1px solid #000400;
+  box-shadow: 1px 1px 3px #101410;
+}
+.dialog * {
+  pointer-events: none;
+}
+.dialog p+p {
+  margin-top: 15px;
+}
+.active {
+  top: 50%;
+}
+.dismiss {
+  top: 100%;
+}
+.interface {
+  display: block;
+  position: absolute;
+  pointer-events: none;
+  background-image: url(img/interface.png);
+  background-repeat: no-repeat;
+}
+.interface.border-left {
+  height: 100%;
+  width: 0;
+  top: 0;
+  left: 0;
+  box-shadow:
+    0 0 0 1px #000400,
+    0 0 0 2px #636563,
+    0 0 0 3px #424542,
+    0 0 0 4px #313431,
+    0 0 0 5px #294963,
+    0 0 0 6px #636563,
+    0 0 0 7px #737573,
+    0 0 0 9px #525552,
+    0 0 0 10px #101410,
+    0 0 0 12px #212421,
+    0 0 0 13px #313431;
+}
+.interface.border-right {
+  height: 100%;
+  width: 0;
+  top: 0;
+  right: 0;
+  box-shadow:
+    0 0 0 1px  #000400,
+    0 0 0 2px  #424542,
+    0 0 0 3px  #313431,
+    0 0 0 4px  #6b7d94,
+    0 0 0 5px  #525552,
+    0 0 0 6px  #737573,
+    0 0 0 7px  #313431,
+    0 0 0 10px #737573;
+}
+.interface.border-top {
+  height: 0;
+  width: 100%;
+  top: 0;
+  left: 0;
+  box-shadow:
+    0 0 0 1px  #000400,
+    0 0 0 2px  #737573,
+    0 0 0 5px  #525552,
+    0 0 0 8px  #212421,
+    0 0 0 9px  #313431;
+}
+.interface.border-bottom {
+  height: 0;
+  width: 100%;
+  bottom: 0;
+  left: 0;
+  box-shadow:
+    0 0 0 1px  #000400,
+    0 0 0 2px  #313431,
+    0 0 0 3px  #424542,
+    0 0 0 5px  #525552,
+    0 0 0 6px  #424542,
+    0 0 0 8px  #525552,
+    0 0 0 9px  #636563,
+    0 0 0 10px #313431;
+}
+.interface.corner-top-left {
+  height: 40px;
+  width: 68px;
+  top: 0;
+  left: 0;
+  background-position: 0 0;
+}
+.interface.corner-top-right {
+  height: 28px;
+  width: 68px;
+  top: 0;
+  right: 0;
+  background-position: -73px 0;
+}
+.interface.corner-bottom-right {
+  height: 54px;
+  width: 69px;
+  bottom: 0;
+  right: 0;
+  background-position: -72px -30px;
+}
+.interface.corner-bottom-left {
+  height: 44px;
+  width: 72px;
+  bottom: 0;
+  left: 0;
+  background-position: 0 -40px;
+}
+#power-cells {
+  display: block;
+  width: 290px;
+  position: absolute;
+  top: 8px;
+  left: 11px;
+  pointer-events: none;
+}
+#odometer {
+  position: absolute;
+  right: 19px;
+  bottom: 0.5rem;
+  display: block;
+  height: 15px;
+  width: 24px;
+  overflow: hidden;
+  text-align: right;
+  color: #8492a5;
+  font-family: monospace;
+  text-shadow: 1px 1px 0px #000400;
+}
+.credits {
+  margin: 1.5rem 0.4rem;
+  text-align: right;
+}
+.crater,
+.rock,
+.icicle1,
+.icicle2,
+.icicle3 {
+  position: absolute;
+  display: block;
+  height: 60px;
+  width: 40px;
+  pointer-events: auto;
+}
+.crater:before,
+.rock:before,
+.icicle1:before,
+.icicle2:before,
+.icicle3:before {
+  background: url(img/icicles.png) 0 0 no-repeat;
+  position: relative;
+  top: 20px;
+  left: 10px;
+  content: "";
+  display: block;
+  height: 20px;
+  width: 20px;
+}
+.crater:before {
+  background-position: -40px -20px;
+}
+.rock:before {
+  background-position: -40px 0;
+}
+.icicle1:before {
+  background-position: -20px -40px;
+}
+.icicle2:before {
+  top: 0;
+  height: 40px;
+  background-position: -20px 0;
+}
+.icicle3:before {
+  top: 0;
+  height: 40px;
+}
+.bar {
+  display: block;
+  height: 3px;
+  background: #424542;
+  border-top:    1px solid #525552;
+  border-bottom: 1px solid #000400;
+  box-shadow: 1px 1px 3px #101410;
+}
+.button {
+  position: absolute;
+  top: -2px;
+  display: inline-block;
+  height: 5px;
+  width: 6px;
+  border-top:    1px solid #636563;
+  border-right:  1px solid #525552;
+  border-bottom: 1px solid #000400;
+  border-left:   1px solid #848684;
+  box-shadow: 1px 1px 3px #101410;
+}
+.lght0 {
+  left: 0%;
+}
+.lght1 {
+  left: 12.5%;
+}
+.lght2 {
+  left: 25%;
+}
+.lght3 {
+  left: 37.5%;
+}
+.lght4 {
+  left: 50%;
+}
+.lght5 {
+  left: 62.5%;
+}
+.lght6 {
+  left: 75%;
+}
+.lght7 {
+  left: 87.5%;
+}
+.lght8 {
+  left: 100%;
+}
+.lvl0 {
+  background: #310000;
+  box-shadow: inset 0 0 0 1px #210000,
+              1px 1px 3px #101410;
+}
+.lvl1 {
+  background: #420000;
+  box-shadow: inset 0 0 0 1px #310000,
+              1px 1px 3px #101410;
+}
+.lvl2 {
+  background: #630000;
+  box-shadow: inset 0 0 0 1px #420000,
+              1px 1px 3px #101410;
+}
+.lvl3 {
+  background: #731000;
+  box-shadow: inset 0 0 0 1px #630000,
+              1px 1px 3px #101410;
+}
+.lvl4 {
+  background: #841000;
+  box-shadow: inset 0 0 0 1px #731000,
+              1px 1px 3px #101410;
+}
+.lvl5 {
+  background: #942000;
+  box-shadow: inset 0 0 0 1px #841000,
+              1px 1px 3px #101410;
+}
+.lvl6 {
+  background: #a52000;
+  box-shadow: inset 0 0 0 1px #942000,
+              1px 1px 3px #101410;
+}
+.lvl7 {
+  background: #d63000;
+  box-shadow: inset 0 0 0 1px #b53000,
+              1px 1px 3px #101410;
+}
+.lvl8 {
+  background: #f75100;
+  box-shadow: inset 0 0 0 1px #d63000,
+              1px 1px 3px #101410;
+}
+</style>
+</head>
+<body>
+<div id="wrapper">
+<div id="viewport">
+<div id="terrain" class="terrain"></div>
+<img id="copter" src="img/copter.png"/>
+<div id="mission" class="dialog active">
+<p>Look, I don't know what you did to piss Henley off, but she's given you
+recon duty. Scan rocks as you fly over them, and pick up anything
+interesting.</p>
+<p>Now the NAVI on that copter of yours is a little quirky.  It&hellip;
+Well you'll figure it out.</p>
+<p>Good luck!</p>
+</div>
+<div class="interface border-left"></div>
+<div class="interface border-right"></div>
+<div class="interface border-top"></div>
+<div class="interface border-bottom"></div>
+<div class="interface corner-top-left"></div>
+<div class="interface corner-top-right"></div>
+<div class="interface corner-bottom-right"></div>
+<div class="interface corner-bottom-left"></div>
+<div id="power-cells" class="bar">
+  <span id="battery0" class="button lght0 lvl8"></span>
+  <span id="battery1" class="button lght1 lvl8"></span>
+  <span id="battery2" class="button lght2 lvl8"></span>
+  <span id="battery3" class="button lght3 lvl8"></span>
+  <span id="battery4" class="button lght4 lvl8"></span>
+  <span id="battery5" class="button lght5 lvl8"></span>
+  <span id="battery6" class="button lght6 lvl8"></span>
+  <span id="battery7" class="button lght7 lvl8"></span>
+  <span id="battery8" class="button lght8 lvl8"></span>
+</div>
+<p id="odometer">0</p>
+</div>
+<div class="credits">
+  <p>Design <abbr title="and">&amp;</abbr> dev by <a href="http://frankmitchell.org/">Frank Mitchell</a> for <a href="http://js13kgames.com/">js13kGames</a></p>
+  <p>&ldquo;<a href="http://lostgarden.com/2005/03/game-post-mortem-hard-vacuum.html">Hard Vacuum</a>&rdquo; art by Daniel Cook (<a href="http://lostgarden.com/">lostgarden.com</a>)</p>
+</div>
+</div>
+<script type="text/javascript">
+(function () {
+  var lastTime = 0;
+  var vendor = ["ms", "mos", "webkit", "o"];
+  var i = 0;
+  while (i < vendor.length && !window.requestAnimationFrame) {
+    window.requestAnimationFrame = window[vendor[i]+"RequestAnimationFrame"];
+    window.cancelAnimationFrame = window[vendor[i]+"CancelAnimationFrame"] || window[vendor[i]+"RequestCancelAnimationFrame"];
+    i += 1;
+  }
+
+  if (!window.requestAnimationFrame) {
+    window.requestAnimationFrame = function (callback, element) {
+      var currTime = new Date().getTime();
+      var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+      var timerId = setTimeout(function () {
+        callback(currTime + timeToCall);
+      }, timeToCall);
+      lastTime = currTime + timeToCall;
+      return timerId;
+    };
+  }
+
+  if (!window.cancelAnimationFrame) {
+    window.cancelAnimationFrame = function (id) {
+      clearTimeout(id);
+    };
+  }
+}());
+
+;(function () {
+"use strict";
+
+function Fn (selector) {
+  if (selector instanceof Fn) {
+    return selector
+  }
+  this.element = selector
+  if (typeof selector === 'string') {
+    if (selector.indexOf('#') === 0) {
+      this.element = document.getElementById(selector.slice(1))
+    }
+  }
+  return this
+}
+
+Fn.prototype.position = function (key, value) {
+  if (this.element) {
+    if (value === undefined) {
+      return parseInt(this.element.style[key], 10)
+    }
+    value = (value + 0.5) | 0
+    this.element.style[key] = value + 'px'
+  }
+  return this
+}
+
+Fn.prototype.height = function (value) {
+  return this.position('height', value)
+}
+
+Fn.prototype.width = function (value) {
+  return this.position('width', value)
+}
+
+Fn.prototype.left = function (value) {
+  return this.position('left', value)
+}
+
+Fn.prototype.appendChild = function (kid) {
+  if (this.element) {
+    kid = new Fn(kid)
+    this.element.appendChild(kid.unwrap())
+  }
+}
+
+Fn.prototype.html = function (value) {
+  if (this.element) {
+    this.element.innerHTML = value
+  }
+  return this
+}
+
+Fn.prototype.classify = function (klass) {
+  if (this.element) {
+    this.element.className = klass
+  }
+}
+
+Fn.prototype.unwrap = function () {
+  return this.element
+}
+
+function root (selector) {
+  return new Fn(selector)
+}
+
+window.jQuery = root
+
+})()
+
+;(function (Coast) {
+"use strict";
+
+var mapHeight = 0
+  , mapWidth = 0
+  , tileIndex = -1
+  , tiles = []
+  , lines = []
+
+function mkpoint (x, y) {
+  return { x: Math.round(x), y: Math.round(y) }
+}
+
+function mkline (start, end) {
+  return { start: start, end: end }
+}
+
+function midpoint (line) {
+  var x = (line.start.x + line.end.x) / 2
+    , y = (line.start.y + line.end.y) / 2
+  return mkpoint(x, y)
+}
+
+function clamp(value, min, max) {
+  if (value < min) {
+    return min
+  }
+  if (value > max) {
+    return max
+  }
+  return value
+}
+
+function randBetween (min, max) {
+  return Math.random() * (max - min) + min;
+}
+
+function generate () {
+  var base = mapWidth / 2
+    , rand_max = 1.0
+    , line = null
+    , mid = null
+    , length = 0
+    , merged = []
+    , i = 0
+
+  tiles = []
+  for (i = 0; i < mapHeight; i += 1) {
+    tiles.push(base)
+  }
+
+  lines = []
+  lines.push(mkline(mkpoint(0, base), mkpoint(mapHeight - 1, base)))
+
+  while (lines.length < tiles.length) {
+    for (i = 0; i < lines.length; i += 1) {
+      line = lines[i]
+      mid = midpoint(line)
+      length = randBetween(-rand_max, rand_max) * mapWidth
+      mid.y += Math.round(length)
+      mid.y = clamp(mid.y, mapWidth / 2, mapWidth - 1)
+      tiles[mid.x] = mid.y
+      lines[i] = [mkline(line.start, mid), mkline(mid, line.end)]
+    }
+    merged = []
+    lines = merged.concat.apply(merged, lines)
+    rand_max /= 2
+  }
+}
+
+Coast.height = function (value) {
+  if (value === undefined) {
+    return mapHeight
+  }
+  mapHeight = value
+}
+
+Coast.width = function (value) {
+  if (value === undefined) {
+    return mapWidth
+  }
+  mapWidth = value
+}
+
+Coast.prev = function () {
+  if (tileIndex < 0 || tileIndex >= tiles.length) {
+    return this.width() / 2
+  }
+  return tiles[tileIndex]
+}
+
+Coast.next = function () {
+  tileIndex += 1
+  if (tileIndex >= tiles.length) {
+    generate()
+    tileIndex = 0
+  }
+  return tiles[tileIndex]
+}
+
+})(window.Coast = window.Coast || {})
+
+;(function (Terrain) {
+"use strict";
+
+var $ = window.jQuery
+  , Coast = window.Coast
+  , canvasHeight = 0
+  , canvasWidth = 0
+  , tileHeight = 20
+  , tileWidth = 20
+
+Terrain.width = function (value) {
+  if (value === undefined) {
+    return canvasWidth
+  }
+  canvasWidth = value
+  Coast.width(canvasWidth / tileWidth)
+}
+
+Terrain.height = function (value) {
+  if (value === undefined) {
+    return canvasHeight
+  }
+  canvasHeight = value
+  Coast.height((canvasHeight / tileHeight) + 1)
+}
+
+Terrain.numRows = function () {
+  return (this.height() / tileHeight) + 1
+}
+
+Terrain.numCols = function () {
+  return this.width() / tileWidth;
+}
+
+Terrain.updateRow = function (row) {
+  var tile = $(document.createElement('div'))
+    , fill = null
+    , prev = Coast.prev()
+    , next = Coast.next()
+
+  row = $(row).html('')
+
+  // Turn the ice into snow
+  if (next > prev) {
+    tile.classify('tile ice2snow-bottom')
+    tile.left((tileWidth * prev) + 10)
+    tile.width(tileWidth * (next - prev))
+    row.appendChild(tile)
+    fill = $(document.createElement('div'))
+    fill.classify('tile ice2snow-bottom-fill')
+    fill.left((tileWidth * next) + 10)
+    fill.width(tileWidth * (this.numCols() - next))
+    row.appendChild(fill)
+  }
+  // Turn the snow into ice
+  else if (next < prev) {
+    tile.classify('tile ice2snow-top')
+    tile.left((tileWidth * next) + 10)
+    tile.width(tileWidth * (prev - next))
+    row.appendChild(tile)
+    fill = $(document.createElement('div'))
+    fill.classify('tile ice2snow-top-fill')
+    fill.left((tileWidth * prev) + 10)
+    fill.width(tileWidth * (this.numCols() - prev))
+    row.appendChild(fill)
+  }
+  // Same as it ever was
+  else {
+    tile.classify('tile ice2snow-left')
+    tile.left((tileWidth * prev) + 10);
+    tile.width(tileWidth * (this.numCols() - next))
+    row.appendChild(tile)
+  }
+
+}
+
+Terrain.makeRow = function () {
+  var row = $(document.createElement('div'))
+  row.classify('row snow')
+  this.updateRow(row)
+  return row
+}
+
+Terrain.initialize = function (selector) {
+  var element = $(selector)
+    , row = null
+    , i = 0
+
+  element.width(this.width())
+  element.height(this.numRows() * tileHeight)
+
+  for (i = 0; i < this.numRows(); i += 1) {
+    element.appendChild(this.makeRow())
+  }
+}
+
+})(window.Terrain = window.Terrain || {})
+
+Terrain.height(440)
+Terrain.width(320)
+
+var $ = function (selector) {
+  return jQuery(selector).unwrap();
+};
+
+var setTop = function (element, value) {
+  if (element) {
+    element.setAttribute("data-top", value);
+  }
+}
+
+var snapTop = function (element) {
+  var value = getTop(element);
+  if (element && element.style) {
+    value = (value + 0.5) | 0;
+    element.style.top = value+"px";
+  }
+};
+
+var getTop = function (element) {
+  var value = 0;
+  if (element && element['getAttribute']) {
+    value = parseFloat(element.getAttribute("data-top"), 10);
+    if (isNaN(value) && element.style) {
+      value = parseFloat(element.style.top, 10);
+    }
+  }
+  return value;
+};
+
+var getLeft = function (element) {
+  var value = 0;
+  if (element) {
+    value = parseFloat(element.getAttribute("data-left"), 10);
+    if (isNaN(value) && element.style) {
+      value = parseFloat(element.style.left, 10);
+    }
+  }
+  return value;
+};
+
+var addTouch = function (element, touchStart, touchEnd) {
+  element.onmousedown = function (event) {
+    if (touchStart) {
+      touchStart(event);
+    }
+    document.onmousemove = function (event) {
+      event.preventDefault();
+    };
+    document.onmouseup = function (event) {
+      if (touchEnd) {
+        touchEnd(event);
+      }
+      document.onmousemove = null;
+      document.onmouseup = null;
+    };
+  };
+  element.ontouchstart = function (event) {
+    element.onmousedown = null;
+    if (touchStart) {
+      touchStart(event);
+    }
+    document.ontouchmove = function (event) {
+      event.preventDefault();
+    };
+    document.ontouchend = function (event) {
+      if (touchEnd) {
+        touchEnd(event);
+      }
+      document.ontouchmove = null;
+      document.ontouchend = null;
+    };
+  };
+};
+
+var Timer = {};
+Timer.tick = function (now) {
+  Timer.delta = (now - (Timer.then || now)) / 1000;
+  Timer.then = now;
+};
+Timer.reset = function () {
+  Timer.then = null;
+};
+
+var tileHeight = 20;
+var tileWidth = 20;
+var copterSpeed = 20;
+var maxIcicles = Terrain.numRows()
+var cachedIcicles = [];
+var fuelCost = 0.675;
+var maxPower = 81;
+var availablePower = maxPower;
+var copterDistance = 0;
+
+var powerUp = function (value) {
+  availablePower += value;
+  availablePower = Math.min(availablePower, maxPower);
+};
+
+
+var powerDown = function (value) {
+  availablePower -= value;
+  availablePower = Math.max(availablePower, 0);
+};
+
+var hasClass = function (element, klass) {
+  return element.classList.contains(klass);
+};
+
+var isIcicle = function (element) {
+  return (
+    hasClass(element, "icicle1") ||
+    hasClass(element, "icicle2") ||
+    hasClass(element, "icicle3") ||
+    hasClass(element, "rock")
+  );
+};
+
+var isCrater = function (element) {
+  return (
+    hasClass(element, "crater")
+  );
+};
+
+var isDialog = function (element) {
+  return hasClass(element, "dialog");
+};
+
+var isTerrain = function (element) {
+  return hasClass(element, "terrain");
+};
+
+var rockToIcicle = function (element) {
+  if (hasClass(element, "rock")) {
+    element.className = "icicle"+icicleSize(element);
+    return true;
+  }
+  return false;
+};
+
+var icicleToRock = function (element) {
+  element.className = "rock";
+};
+
+var touchedIcicles = [];
+var onBoardTouch = function (event) {
+  var target = event.srcElement || event.target;
+  if (isIcicle(target)) {
+    if (running() && rockToIcicle(target)) {
+      touchedIcicles.push(target);
+      powerDown(1);
+    }
+  }
+  else if (isDialog(target)) {
+    target.className = "dialog dismiss";
+    requestAnimationFrame(render);
+  }
+};
+
+var randomValue = function (array) {
+  return array[Math.floor(Math.random() * array.length)];
+};
+
+var icicleSize = function (element) {
+  if (!element.hasAttribute("data-icicle-size")) {
+    var offset = getTop(element);
+    var zone = Math.ceil(Terrain.height() / 3);
+    var types = [1, 1, 1, 1, 2, 2, 3];
+    if (offset <= zone * 2) {
+        types = [1, 1, 2, 2, 2, 2, 3];
+    }
+    if (offset <= zone * 1) {
+        types = [1, 2, 2, 3, 3, 3, 3];
+    }
+    var size = randomValue(types);
+    element.setAttribute("data-icicle-size", size);
+  }
+  return parseInt(element.getAttribute("data-icicle-size"), 10);
+};
+
+var icicleValue = function (element) {
+  return 2 * icicleSize(element);
+};
+
+var updateIcicles = function () {
+  if (touchedIcicles.length < 2) {
+    return;
+  }
+  var reactTime = 600;
+  var first = touchedIcicles[0];
+  var second = touchedIcicles[1];
+  touchedIcicles = [];
+  // If the icicles aren't the same size, flip them both face down.
+  if (first.className != second.className) {
+    setTimeout(function () {
+      icicleToRock(first);
+      icicleToRock(second);
+    }, reactTime);
+    return;
+  }
+  // The icicles are the same size, so remove them.
+  powerUp(icicleValue(first));
+  setTimeout(function () {
+    removeIcicle(first);
+    removeIcicle(second);
+  }, reactTime);
+};
+
+var overlapsIcicle = function (element, bl, bt) {
+  // Two rectangles do not  intersect if
+  // * A's left edge is to the right of B's right edge
+  // * A's right edge is to the left of B's left edge
+  // * A's top edge is below B's bottom edge
+  // * A's bottom edge is above B's top edge
+  // Invert those conditions with De Morgan's Law to test for overlap
+  var al = getLeft(element);
+  var at = getTop(element);
+  var ar = al + 40;
+  var ab = at + 60;
+  var br = bl + 40;
+  var bb = bt + 60;
+  return al < br && ar > bl && at < bb && ab > bt;
+};
+
+var hitsAnyIcicle = function (x, y) {
+  var i = 0;
+  for (i = 0; i < cachedIcicles.length; i += 1) {
+    if (overlapsIcicle(cachedIcicles[i], x, y)) {
+      return true;
+    }
+  }
+  return false;
+};
+
+var hitsEdge = function (index) {
+  return index < 1 || index >= Coast.prev() || index >= Terrain.numCols() - 2;
+};
+
+var addIcicle = function (element) {
+  if (cachedIcicles.length >= maxIcicles) {
+    return;
+  }
+  var index = Math.floor(Math.random() * Terrain.numCols());
+  if (hitsEdge(index)) {
+    return;
+  }
+  var possible = [];
+  for (index = 0; index < Terrain.numCols(); index += 1) {
+    if (!hitsAnyIcicle(index * tileWidth, Terrain.height()) && !hitsEdge(index)) {
+      possible.push(index);
+    }
+  }
+  if (possible.length <= 0) {
+    return;
+  }
+  index = randomValue(possible);
+  var icicle = document.createElement("div");
+  icicle.className = "rock";
+  icicle.style.top = -tileHeight+"px";
+  icicle.style.left = (index * tileWidth)+"px";
+  setTop(icicle, Terrain.height());
+  element.appendChild(icicle);
+  cachedIcicles.push(icicle);
+};
+
+var removeElement = function (element) {
+  element.parentNode.removeChild(element);
+};
+
+var removeIcicle = function (element) {
+  var index = touchedIcicles.indexOf(element);
+  if (index >= 0) {
+    touchedIcicles.splice(index, 1);
+  }
+  index = cachedIcicles.indexOf(element);
+  if (index >= 0) {
+    cachedIcicles.splice(index, 1);
+  }
+  element.className = "crater";
+};
+
+var updateRow = function (element) {
+  var i = 0;
+  var sprites = element.childNodes;
+  var sprite = null;
+  for (i = 0; i < sprites.length; i += 1) {
+    sprite = sprites[i];
+    if (isIcicle(sprite)) {
+      removeIcicle(sprite);
+    }
+    if (isCrater(sprite)) {
+      removeElement(sprite);
+    }
+  }
+  Terrain.updateRow(element);
+  addIcicle(element);
+};
+
+var running = function () {
+  return hasClass($("#mission"), "dismiss") && availablePower > 0;
+};
+
+var setup = function () {
+  var i = 0;
+  var row = null;
+
+  var viewport = $("#viewport");
+  viewport.style.height = Terrain.height()+"px";
+  viewport.style.width = Terrain.width()+"px";
+
+  Terrain.initialize('#terrain');
+
+  addTouch(viewport, onBoardTouch, updateIcicles);
+};
+
+var nextMission = function () {
+  var text = "<p>"+randomValue(["Nice flying.","Not bad.","Don't get cocky."])+"</p>";
+  text += "<p>You made it "+Math.floor(copterDistance)+" meters on those fuel cells. ";
+  text += "I can probably dig up some more if you want to go again.</p>";
+  text += "<p>You game?</p>";
+  return text;
+};
+
+var resetMission = function () {
+  var i = 0;
+  var mission = $("#mission");
+  for (i = 0; i < cachedIcicles.length; i += 1) {
+    icicleToRock(cachedIcicles[i]);
+  }
+  mission.innerHTML = nextMission();
+  mission.className = "dialog active";
+  availablePower = maxPower;
+  copterDistance = 0;
+  Timer.reset();
+  updateOdometer();
+};
+
+var moveUp = function (element, delta) {
+  var offset = getTop(element) + delta;
+  var warp = false;
+  if (offset < -tileHeight) {
+    offset = delta;
+    warp = true;
+  }
+  setTop(element, offset);
+  return warp;
+};
+
+var lastPowerUpdate = 0;
+var updatePower = function () {
+  var now = Date.now();
+  if (now - lastPowerUpdate < 333) {
+    return;
+  }
+  lastPowerUpdate = now;
+  var i = 0;
+  var power = Math.floor((availablePower / maxPower) * 81);
+  var units = Math.floor(power / 9);
+  power = power - (units * 9);
+  for (i = 0; i < units && i < 9; i += 1) {
+    $("#battery"+i).className = "button lght"+(8 - i)+" lvl8";
+  }
+  if (i < 9) {
+    $("#battery"+i).className = "button lght"+(8 - i)+" lvl"+power;
+  }
+};
+
+var lastFuelUpdate = 0;
+var updateFuel = function () {
+  var now = Date.now();
+  if (now - lastFuelUpdate > 1000) {
+    powerDown(fuelCost);
+    lastFuelUpdate = now;
+  }
+};
+
+var lastOdometerUpdate = 0;
+var updateOdometer = function () {
+  var now = Date.now();
+  if (now - lastOdometerUpdate > 333) {
+    $("#odometer").innerHTML = Math.floor(copterDistance);
+    lastOdometerUpdate = now;
+  };
+};
+
+var render = function (time) {
+  if (!running()) {
+    resetMission();
+    return;
+  }
+  requestAnimationFrame(render);
+  Timer.tick(time);
+  var terrain = $("#terrain");
+  var row = null;
+  var i = 0;
+  var offset = -copterSpeed * Timer.delta;
+  copterDistance += -offset;
+  if (copterDistance >= 10000) {
+    copterDistance = 0;
+  }
+  for (i = 0; i < cachedIcicles.length; i += 1) {
+    moveUp(cachedIcicles[i], offset);
+  }
+  if (moveUp(terrain, offset)) {
+    row = terrain.removeChild(terrain.firstChild);
+    updateRow(row);
+    terrain.appendChild(row);
+  }
+  snapTop(terrain);
+  updateFuel();
+  updatePower();
+  updateOdometer();
+};
+
+setup();
+</script>
+</body>
+</html>

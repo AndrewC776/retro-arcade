@@ -1,0 +1,123 @@
+@keyframes shake {
+  0% {
+    transform: translateX(0px);
+  }
+
+  20% {
+    transform: translateX(22px);
+  }
+
+  40% {
+    transform: translateX(-22px);
+  }
+
+  60% {
+    transform: translateX(22px);
+  }
+
+  80% {
+    transform: translateX(-22px);
+  }
+
+  100% {
+    transform: translateX(0px);
+  }
+}
+@keyframes shake1 {
+  0% {
+    transform: scale(1) translateY(0);
+  }
+
+  33% {
+    transform: scale(1.10) translateY(5px);
+  }
+
+  66% {
+    transform: scale(1.15) translateY(-5px);
+  }
+
+  100% {
+    transform: scale(1) translateY(0);
+  }
+}
+@keyframes shake2 {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.2);
+  }
+}
+@keyframes shake3 {
+  from {
+    text-shadow: 0 0 0 red;
+  }
+
+  to {
+    text-shadow: 0 0 10px red;
+  }
+}
+@keyframes flash-red {
+  0% {
+    color: inherit;
+  }
+
+  90% {
+    color: inherit;
+  }
+
+  100% {
+    color: red;
+  }
+}
+@keyframes invert {
+  0% {
+    filter: invert(0%);
+  }
+
+  90% {
+    filter: invert(0%);
+  }
+
+  100% {
+    filter: invert(100%);
+  }
+}
+
+.f-r {
+  animation: flash-red 10s infinite;
+}
+
+.animate span {
+  display: inline-block;
+}
+@for $i from 1 through 10 {
+  .animate span:nth-child(#{$i}) {
+    animation-delay: $i * 50ms;
+  }
+}
+
+.shake1 span {
+  animation: shake1 250ms infinite ease-in-out;
+}
+
+.shake2 span {
+  animation: shake2 250ms infinite ease-in-out;
+}
+
+.shake3 span {
+  animation: shake3 200ms infinite linear;
+}
+
+#start {
+  animation: shake3 2s infinite linear;
+}
+
+.pull_right {
+  float: right;
+}
+
+.pull_left {
+  float: left;
+}

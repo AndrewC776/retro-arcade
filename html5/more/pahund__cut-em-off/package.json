@@ -1,0 +1,66 @@
+{
+    "name": "cut-em-off",
+    "version": "1.0.1",
+    "description": "Make your users go offline before the evil virus infects them!",
+    "main": "index.js",
+    "scripts": {
+        "start": "serve -d",
+        "build": "npm run rollup && npm run uglify-js && npm run uglify-css && npm run clean",
+        "clean": "rm -rf ./tmp",
+        "rollup": "rollup -c -m --silent",
+        "uglify-css": "uglifycss ./src/main.css > ./game.css",
+        "uglify-js": "uglifyjs -m -c -o game.js --source-map=\"content='./tmp/bundle.js.map',url=game.js.map\" -- ./tmp/bundle.js",
+        "zip": "rm -f captain-katamov.zip && zip -9 -X captain-katamov.zip game.js game.css index.html vendor/kontra.min.js",
+        "test": "jest",
+        "lint": "eslint --fix '**/*.js'",
+        "format": "prettier --write '**/*.js'",
+        "precommit": "lint-staged"
+    },
+    "lint-staged": {
+        "*.js": [
+            "eslint --fix",
+            "git add",
+            "jest --bail --findRelatedTests"
+        ]
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/pahund/cut-em-off.git"
+    },
+    "keywords": [
+        "js13kGames"
+    ],
+    "author": "Patrick Hund <pahund@team.mobile.de> (https://ebaytech.berlin/)",
+    "contributors": [
+        "Uwe Loydl <uloydl@team.mobile.de>",
+        "Frederik Leidloff <fleidloff@team.mobile.de>",
+        "Kris Urbas <kurbas@team.mobile.de>",
+        "Mike Krüger <mikkrueger@team.mobile.de>"
+    ],
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/pahund/cut-em-off/issues"
+    },
+    "homepage": "https://github.com/pahund/cut-em-off#readme",
+    "devDependencies": {
+        "babel-core": "^6.26.3",
+        "babel-jest": "^23.4.2",
+        "babel-preset-env": "^1.7.0",
+        "eslint": "^5.3.0",
+        "eslint-config-motor-talk": "^5.0.0",
+        "eslint-config-prettier": "^2.9.0",
+        "eslint-plugin-jest": "^21.21.0",
+        "eslint-plugin-prettier": "^2.6.2",
+        "eslint-plugin-react": "^7.10.0",
+        "husky": "^0.14.3",
+        "jest": "^23.5.0",
+        "lint-staged": "^7.2.2",
+        "prettier": "^1.14.2",
+        "rollup": "^0.65.2",
+        "rollup-plugin-replace": "^2.0.0",
+        "serve": "^10.0.0",
+        "uglify-es": "github:mishoo/UglifyJS2#harmony",
+        "uglifycss": "0.0.29"
+    },
+    "dependencies": {}
+}

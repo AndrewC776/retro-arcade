@@ -1,0 +1,11 @@
+node_modules
+q1k3/
+jsnes/
+nesemu*/
+package.json
+package-lock.json
+autosave/
+build/
+pack_map
+\#*
+*~

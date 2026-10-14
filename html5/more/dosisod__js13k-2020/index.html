@@ -1,0 +1,79 @@
+<meta charset="utf-8"><canvas><script>
+e={0:[,"#444"],
+100:["Continue","#aaa"],
+200:["OK","#6f6"],
+201:["Created","#6f6"],
+202:["Accepted","#6f6"],
+301:["Moved Permanantly","#afa"],
+304:["Not Modified","#afa"],
+400:["Bad Request","#66f"],
+401:["Unauthorized","#66f"],
+402:["Payment Required","#66f"],
+403:["Forbidden","#66f"],
+404:["Not Found","#66f"],
+410:["Gone","#66f"],
+500:["Server Error","#f66"],
+501:["Not Implemented","#f66"],
+999:["Coins!","#ea5"]}
+
+gold=0
+current=[
+,,,,,,,,,
+,,,,,,,,,
+,,,,,,,,,
+,,,,,,,,,
+,,,,,,,,,
+,,,,,,,,,
+,,,,,,,,,
+,,,,,,,,,
+,,,,,,,,,
+]
+
+win=window
+
+events=[]
+document.onkeydown=e=>{
+events.unshift(`Pressed '${e.key}'`)
+if(events.length>10)events.length=10
+field()
+}
+
+canv=document.querySelector("canvas")
+canv.width=width=win.innerWidth
+canv.height=height=win.innerHeight
+px=48
+boardx=9*px
+boardy=9*px
+
+draw=canv.getContext("2d")
+draw.font="22px mono"
+
+block=(x,y,code)=>{
+_x=((width-boardx)/2)+(x*px)+2
+_y=((height-boardy)/2)+(y*px)+2
+draw.fillStyle=e[code][1]
+draw.fillRect(_x,_y,px-4,px-4)
+text(code||"","#000",_x,_y)
+}
+
+field=_=>{
+draw.fillStyle="#555"
+draw.fillRect(0,0,width,height)
+text("gold: "+gold,"#ea5",(width-boardx)/2,((height-boardy)/2)-40)
+x=81
+while(x-->0){block(x%9,~~(x/9),current[x]||0)}
+x=events.length
+while(x-->0){text(
+	events[x],"#fff",
+	(width-boardx)/2,
+	(((height+boardy)/2)+(40*x)))}
+}
+
+text=(s,c,x,y)=>{
+draw.fillStyle=c
+draw.fillText(s,x+2,y+30)
+}
+
+field()
+
+</script><style>*{margin:0}

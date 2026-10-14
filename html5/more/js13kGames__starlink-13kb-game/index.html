@@ -1,0 +1,356 @@
+<!-- 
+
+	Starlink - The 13kb Game
+	Small game created for JS13kGames Competition 2021
+
+	Help Elon Musk launch the Starlink satellite network! But be careful, place as many satellites you can without crashing and ruining everything!
+
+	Developer: Will Gittens
+	Website: https://games.betridee.com
+	Version: 1.0
+	Date: 20/08/2021
+	
+	License: GNU GENERAL PUBLIC LICENSE
+	https://www.gnu.org/licenses/gpl-3.0.html
+
+-->
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Starlink - The 13kb Game</title>
+
+	<style type="text/css">
+		
+		body{ 
+		
+			background: gray; 
+			padding: 0px; 
+			margin: 0px; 
+			overflow: hidden; 
+		
+		}
+
+		canvas{ 
+		
+			position: absolute;
+			left: 50%;
+			margin-left: -480px;
+			margin-top: 2vh;
+		
+		}
+
+		img{ display: none; }
+
+	</style>
+
+</head>
+<body>
+
+	<canvas id="gameCanvas"></canvas>
+	<canvas id="satCanvas"></canvas>
+	<canvas id="rocketCanvas"></canvas>
+	<canvas id="smokeCanvas"></canvas>
+	<img id="img_sat" src="satellite.png">
+	<img id="img_rocket" src="rocket.png">
+	<img id="img_smoke" src="smoke.png">
+	<img id="opening" src="opening-screen.jpg">
+	<img id="end" src="end-screen.jpg">
+	<img id="explosion" src="explosion.png">
+
+</body>
+
+<script type="text/javascript">
+	
+	class Starlink13K{
+
+			constructor(){
+				this.satellites = [];
+				this.startScreen();
+			}
+		
+			startScreen(){
+
+				var canvas = document.getElementById( "gameCanvas" );
+				this.stage = canvas.getContext("2d");	
+
+				canvas.width = 960;
+				canvas.height = 600;
+				canvas.style.background = "black";				
+
+				this.stage.fillStyle = "#ffffff";
+				this.stage.font = "700 70px Arial";
+				this.stage.fillText( "STARLINK" , 310, 140);		// 215		
+
+				this.stage.font = "30px Arial";
+				this.stage.fillText( "THE 13Kb GAME" , 370, 180);
+
+				this.stage.font = "27px Arial";
+				this.stage.fillText( "Help Elon Musk launch the Starlink" , 270, 260);
+				this.stage.fillText( "satellite network! But be careful," , 290, 295);
+				this.stage.fillText( "place as many satellites you can" , 285, 330);
+				this.stage.fillText( "without crashing and ruining" , 310, 365);
+				this.stage.fillText( "everything!" , 420, 400);
+				
+				this.stage.font = "15px Arial";
+				this.stage.fillText( "Crazy coded by Will Gittens 2021" , 380, 570);	
+
+				this.stage.fillStyle = "red";
+				this.stage.font = "700 27px Arial";
+				this.stage.fillText( "CLICK TO START" , 380, 480);
+
+				canvas.addEventListener('click', (event) => {
+
+					this.stage.clearRect( 0 , 0 , 960 , 600 );
+					this.drawScenario();
+
+				});
+
+			}
+
+			endScreen(){
+
+				this.satellites = [];
+
+				this.stage.clearRect( 0 , 0 , 960 , 600 );
+				this.satStage.clearRect( 0 , 0 , 960 , 600 );
+				this.rocketStage.clearRect( 0 , 0 , 960 , 600 );
+				this.smokeStage.clearRect( 0 , 0 , 960 , 600 );
+
+				var endImg = document.getElementById("end");				
+				this.stage.drawImage( endImg, 528, 0 , 432 , 600 );
+
+				this.stage.fillStyle = "#ffffff";
+				this.stage.font = "700 70px Arial";
+				this.stage.fillText( "YOU MADE" , 70, 140);		
+				this.stage.fillText( "ELON CRY!" , 75, 210);		
+
+				this.stage.font = "27px Arial";
+				this.stage.fillText( "You screwed up!" , 160, 280);
+				this.stage.fillText( "Perfect score: 119" , 150, 330);
+				this.stage.fillText( "Your score: "+this.score , 175, 360);
+
+				this.stage.fillStyle = "red";
+				this.stage.font = "700 50px Arial";
+				this.stage.fillText( "TRY AGAIN" , 125, 450);
+
+				var smokeCanvas = document.getElementById( "smokeCanvas" );
+				smokeCanvas.addEventListener('click', (event) => {
+
+				 	window.location.reload(true);
+
+				});
+
+			}
+
+			drawScenario(){
+
+				var w = document.body.clientWidth;
+				var h = document.documentElement.clientHeight;
+
+				var canvas = document.getElementById( "gameCanvas" );
+				this.stage = canvas.getContext("2d");	
+
+				var satCanvas = document.getElementById( "satCanvas" );
+				this.satStage = satCanvas.getContext("2d");	
+
+				var rocketCanvas = document.getElementById( "rocketCanvas" );
+				this.rocketStage = rocketCanvas.getContext("2d");	
+
+				var smokeCanvas = document.getElementById( "smokeCanvas" );
+				this.smokeStage = smokeCanvas.getContext("2d");														
+
+				canvas.width = 960;
+				canvas.height = 600;
+				canvas.style.background = "black";
+
+				satCanvas.width = 960;
+				satCanvas.height = 600;	
+
+				rocketCanvas.width = 960;
+				rocketCanvas.height = 600;			
+
+				smokeCanvas.width = 960;
+				smokeCanvas.height = 600;									
+
+				this.stage.beginPath();
+				this.stage.arc( 480, 600, 500, 0, 2 * Math.PI);
+				this.stage.strokeStyle = "#FFFFFF";
+				this.stage.lineWidth = 0.2;
+				this.stage.stroke();
+
+				this.drawPlanet();
+
+				this.stage.beginPath();
+				this.stage.arc( 480, 600, 90, 0, 2 * Math.PI);
+				this.stage.fillStyle = "#ffffff";
+				this.stage.fill();
+
+				this.score = 0;
+
+				this.satStage.fillStyle = "#ffffff";
+				this.satStage.font = "40px Arial";
+				this.satStage.fillText( this.score , 10, 40);
+
+				this.stage.fillStyle = "red";
+				this.stage.font = "700 40px Arial";
+				this.stage.fillText( "Click!", 427, 585);
+
+				this.angle = 0;
+				this.rocketPos = 510;
+				this.btoRocket = 0;
+				this.sizeSmoke = 16;
+
+				this.loop = setInterval( () => this.drawSatellite( this.satellites ) , 100 );
+
+				smokeCanvas.addEventListener('click', (event) => {
+
+					if( this.btoRocket == 0 ){
+
+						var audio = new Audio('rocket.mp3');
+						audio.play();
+
+					}
+
+					this.btoRocket = 1;
+					this.drawRocket();
+
+				});
+
+			}
+
+			drawPlanet(){
+
+				var planetColor = this.stage.createLinearGradient( 200, 200, 200 , 800 );
+				planetColor.addColorStop(0, "black");
+				planetColor.addColorStop(0.2, "#102d42");
+				planetColor.addColorStop(1, "#369ae3");
+
+				this.stage.beginPath();
+				this.stage.arc( 480, 600, 400, 0, 2 * Math.PI);
+				this.stage.fillStyle = planetColor;
+				this.stage.fill();
+
+			}
+
+			drawSatellite( angles ){
+
+				var sat = document.getElementById("img_sat");
+				var thisCanvas = this.satStage;
+				var rocketCanvas = this.rocketStage;
+
+				var orbitAngle = this.angle;
+
+				thisCanvas.clearRect( 0 , 0 , 960 , 600 );
+				rocketCanvas.clearRect( 0 , 0 , 960 , 600 );
+
+				angles.forEach( function( angleItem ){
+
+					thisCanvas.save();
+					thisCanvas.translate( 480 , 590 );
+					thisCanvas.rotate( angleItem + orbitAngle );
+					thisCanvas.drawImage( sat, 465 , 85 , 30 , 30 );
+					thisCanvas.restore();
+
+				});
+
+				if( this.angle >= 6.25 ){
+
+					this.angle = 0;
+
+				}else{
+
+					this.angle += 0.02;
+
+				}
+
+				this.satStage.fillStyle = "#ffffff";
+				this.satStage.font = "40px Arial";
+				this.satStage.fillText( this.score , 10, 40);
+
+				this.drawRocket();
+
+			}
+
+			drawRocket(){
+
+				var sat = document.getElementById("img_rocket");
+				var smoke = document.getElementById("img_smoke");
+				var explosion = document.getElementById("explosion");
+		
+				if( this.btoRocket == 1 ){
+
+					if( this.rocketPos > 90 ){
+
+						this.rocketStage.drawImage( sat, 460, this.rocketPos , 40 , 40 );
+						
+						this.smokeStage.drawImage( smoke, 450, 480 , 50 , 36 );
+						this.smokeStage.beginPath();
+						this.smokeStage.arc( 480, this.rocketPos + 30, this.sizeSmoke, 0, 2 * Math.PI);
+						this.smokeStage.fillStyle = "rgba(255, 255, 255, 0.2)";
+						this.smokeStage.fill();						
+
+						this.rocketPos -= 20;
+						this.sizeSmoke -= 0.6;
+
+					}
+
+					else if( this.rocketPos == 90 ){
+
+						var collision =	this.checkCollision( 4.5 - this.angle );
+
+						if( collision !== true ){
+
+							this.satellites.push( 4.5 - this.angle );
+							this.score++;
+							this.rocketPos = 510;
+							this.btoRocket = 0;
+							this.sizeSmoke = 16;
+							this.smokeStage.clearRect( 0 , 0 , 960 , 600 );							
+
+						}else{
+
+							clearInterval( this.loop );
+							this.satStage.drawImage( explosion, 450 , 70 , 70 , 70 );
+
+							var audio2 = new Audio('explosion.mp3');
+							audio2.play();
+
+							setTimeout( () => this.endScreen() , 600 );
+
+						}
+
+					}					
+
+				}
+
+			}			
+
+			checkCollision( rocket ){
+
+				var boolRetorno = false;
+
+				this.satellites.forEach( function( angle ){
+
+					var diferenca = Math.abs( angle - rocket );
+
+					if( diferenca < 0.05 ){
+
+						boolRetorno = true;
+
+					}
+
+				});
+
+				return boolRetorno;
+
+			}
+
+	}
+
+	playGame = new Starlink13K();
+
+</script>
+
+</html>

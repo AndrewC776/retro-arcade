@@ -1,0 +1,5 @@
+{
+  "cSpell.words": ["Ohajiki", "oxfmt", "oxlint", "tsgolint"],
+  "editor.formatOnSave": false,
+  "js/ts.preferences.importModuleSpecifier": "non-relative"
+}
