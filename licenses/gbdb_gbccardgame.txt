@@ -1,0 +1,17 @@
+# Card game -Pair- for Gameboy color
+Electric feature tasted Standard card game as called 'Pair' in English, '神経衰弱' in Japanese.
+
+<table>
+<tr>
+<td><img src="./pics/gb_pel01.jpg"></td>
+<td><img src="./pics/gb_pel02.jpg"></td>
+</tr>
+</table>
+
+## Have fun !!
+ In mean time (around 2000), I made this game for my daughter. I said electric feature tasted above sentence, it means very hard rather than non-tasted game. Eventually, my daughter solved hardest mode !! Can you ?
+
+# License
+Copyright (c) Osamu OHASHI  
+Distributed under the MIT License either version 1.0 or any later version. 
+

@@ -1,0 +1,34 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>游戏中 · 复古街机厅</title>
+<style>body{margin:0;background:#000;color:#ff0;font-family:monospace}#top{padding:8px 14px;background:#140a2a;border-bottom:2px solid #ff3df2}
+a{color:#7ff;margin-right:16px}#game{width:100vw;height:calc(100vh - 42px)}iframe{border:0;width:100%;height:100%}</style></head><body>
+<div id="top"><a href="index.html">◀ 返回大厅</a><span id="ttl"></span></div><div id="game"></div>
+<script src="games.js"></script><script src="my-games.js"></script><script src="meta-db.js"></script><script src="meta-match.js"></script><script src="idb.js"></script><script>
+const P=new URLSearchParams(location.search);const ALL=[...window.GAMES,...(window.MY_GAMES||[])];
+const CORE={nes:'nes',gb:'gb',gbc:'gb',gba:'gba',arcade:'arcade',fbneo:'arcade',mame:'mame2003_plus',sms:'genesis_plus_gx',gg:'genesis_plus_gx',segaMD:'genesis_plus_gx',md:'genesis_plus_gx',gen:'genesis_plus_gx',snes:'snes9x',sfc:'snes9x',smc:'snes9x',pce:'mednafen_pce',atari2600:'stella2014',a26:'stella2014',atari7800:'prosystem',a78:'prosystem',lynx:'handy',lnx:'handy',ws:'mednafen_wswan',wsc:'mednafen_wswan',coleco:'gearcoleco',col:'gearcoleco',ngp:'mednafen_ngp',doom:'prboom',wad:'prboom'};
+function ejs(url,sys,name,opt,bios){if(opt)window.EJS_defaultOptions=opt;if(bios)window.EJS_biosUrl=bios;window.EJS_player='#game';window.EJS_core=CORE[sys]||sys;window.EJS_gameUrl=url;window.EJS_gameName=name;
+ window.EJS_pathtodata='emulatorjs/data/';window.EJS_language='zh-CN';window.EJS_startOnLoaded=true;
+ const s=document.createElement('script');s.src='emulatorjs/data/loader.js';document.body.appendChild(s)}
+function ruffle(url){window.RufflePlayer=window.RufflePlayer||{};window.RufflePlayer.config={publicPath:'ruffle/',autoplay:'on',unmuteOverlay:'hidden'};
+ const s=document.createElement('script');s.src='ruffle/ruffle.js';s.onload=()=>{const p=window.RufflePlayer.newest().createPlayer();p.style.width='100%';p.style.height='100%';document.getElementById('game').appendChild(p);p.ruffle().load(url)};document.body.appendChild(s)}
+function run(file,sys,name,opt,bios){document.getElementById('ttl').textContent=name;document.title=name+' · 复古街机厅';
+ if(sys==='html5'){document.getElementById('game').innerHTML=`<iframe src="${file}" allow="autoplay;fullscreen"></iframe>`}
+ else if(sys==='swf'||/\.swf$/i.test(file)&&!sys)ruffle(file);else ejs(file,sys,name,opt,bios)}
+function info(m){if(!m)return;const t=document.getElementById('ttl');t.innerHTML=`<b>${esc(m.title)}</b> <span style="color:#9cf;font-size:12px">${esc([m.system,m.genre,m.year,m.developer].filter(Boolean).join(' · '))}</span><div style="color:#ccd;font-size:12px;margin-top:2px">${esc(m.description||'')}</div>`;document.getElementById('top').style.height='auto';document.title=m.title+' · 复古街机厅'}
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
+function pickSys(r,ext,forced){if(forced&&forced!=='auto')return forced;if(r.system)return r.system;return ext==='zip'?'mame':ext}
+function biosFor(m){return m&&/neo ?geo/i.test((m.system||'')+(m.hardware||''))?'my-roms/neogeo.zip':null}
+if(P.get('own')){idbGet('own').then(o=>{if(!o){document.getElementById('ttl').textContent='没有找到文件，请回大厅重新选择';return}
+  const ext=o.name.split('.').pop().toLowerCase();const r=matchMeta(o.name);const sys=pickSys(r,ext,ext==='zip'?(P.get('sys')||o.zipCore):null);
+  run(URL.createObjectURL(o.blob),sys,o.name,null,biosFor(r.meta));info(r.meta);window.OWN_MATCH={file:o.name,sys,meta:r.meta&&r.meta.title}})}
+else if(P.get('file')){const f=P.get('file');const r=matchMeta(f);const sys=pickSys(r,f.split('.').pop().toLowerCase(),P.get('sys'));run(f,sys,f.split('/').pop(),null,biosFor(r.meta));info(r.meta);window.OWN_MATCH={file:f,sys,meta:r.meta&&r.meta.title}}
+else{const g=ALL.find(x=>x.id===P.get('id'));
+ if(g&&g.needsDownload){fetch(g.file,{method:'HEAD'}).then(r=>{if(r.ok)run(g.file,g.system,g.title,g.options);else needDl(g)}).catch(()=>needDl(g))}
+ else if(g)run(g.file,g.system,g.title,g.options);else document.getElementById('ttl').textContent='找不到这个游戏'}
+function needDl(g){document.getElementById('ttl').textContent=g.title;document.getElementById('game').innerHTML=`<div style="max-width:640px;margin:60px auto;line-height:1.8;color:#e8e8ff;font-size:16px">
+<h2 style="color:#ff3df2">需要你自己下载：${g.title}</h2>
+<p>这款游戏的 ROM 由原版权方授权 <b>MAME 官方网站</b>免费下载（仅限非商业用途），但<b>不允许</b>别人再打包分发，所以本合集没有附带。</p>
+<ol><li>打开官方页面：<a href="${g.download}" target="_blank">${g.download}</a>（需要联网）</li>
+<li>勾选同意“仅非商业用途”后，下载 <b>${g.file.split('/').pop()}</b>（不要解压、不要改名）</li>
+<li>把它放进本合集的 <b>my-roms/</b> 文件夹，刷新本页即可开玩</li></ol>
+<p>也可以回大厅点“打开我自己的游戏文件”直接选这个 zip。</p></div>`}
+</script></body></html>
